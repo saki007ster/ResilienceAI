@@ -1,0 +1,34 @@
+<div class="avatar-container" [class.speaking]="isSpeaking" [class.hidden]="!isVisible">
+  <!-- Main avatar canvas -->
+  <canvas #avatarCanvas class="avatar-canvas"></canvas>
+  
+  <!-- Speaking status indicator -->
+  <div class="speaking-status" *ngIf="isSpeaking">
+    <div class="pulse-dot"></div>
+    <span>Speaking...</span>
+  </div>
+  
+  <!-- Current viseme display (for debugging) -->
+  <div class="viseme-debug" *ngIf="currentViseme !== 'sil'">
+    {{ currentViseme }}
+  </div>
+  
+  <!-- TTS Controls (optional) -->
+  <div class="avatar-controls">
+    <button 
+      class="control-btn pause-btn" 
+      *ngIf="isSpeaking" 
+      (click)="pauseSpeaking()"
+      title="Pause Speech">
+      ⏸️
+    </button>
+    
+    <button 
+      class="control-btn stop-btn" 
+      *ngIf="isSpeaking" 
+      (click)="stopSpeaking()"
+      title="Stop Speech">
+      ⏹️
+    </button>
+  </div>
+</div>

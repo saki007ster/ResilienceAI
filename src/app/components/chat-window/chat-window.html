@@ -17,6 +17,11 @@
         <span class="status-dot"></span>
         <span>{{ isChatReady && isModelReady ? aiDevice : 'AI Initializing' }}</span>
       </div>
+
+      <div class="status-item" [class.active]="headTts.isSupported()">
+        <span class="status-dot"></span>
+        <span>{{ headTts.isSupported() ? 'TTS Ready' : 'TTS Not Available' }}</span>
+      </div>
     </div>
   </div>
 
@@ -25,120 +30,164 @@
     <app-model-download></app-model-download>
   </div>
 
-  <!-- Chat Interface (shown when model is ready) -->
+  <!-- Main Chat Interface (shown when model is ready) -->
   <div *ngIf="isModelReady" class="chat-interface">
     
-    <!-- Chat Messages -->
-    <div class="chat-messages" #messagesContainer>
+    <!-- Avatar and Chat Side-by-Side Layout -->
+    <div class="chat-main-content">
       
-      <!-- Welcome Message (when no conversation history) -->
-      <div *ngIf="messages.length === 0" class="welcome-message">
-        <div class="welcome-content">
-          <div class="welcome-icon">🌟</div>
-          <h3>Welcome to Resilience AI</h3>
-          <p>I'm here to support your mental wellness journey. Our conversations are completely private and happen offline on your device.</p>
+      <!-- Avatar Section -->
+      <div class="avatar-section" *ngIf="avatarEnabled">
+        <app-avatar 
+          [size]="200" 
+          [isVisible]="avatarEnabled">
+        </app-avatar>
+        
+        <!-- TTS Controls -->
+        <div class="tts-controls">
+          <button 
+            class="control-btn" 
+            [class.active]="autoSpeakReplies"
+            (click)="toggleAutoSpeak()"
+            title="Toggle Auto-speak Replies">
+            🔊 Auto-speak
+          </button>
           
-          <div class="conversation-starters">
-            <h4>You can ask me about:</h4>
-            <div class="starter-tags">
-              <span class="starter-tag">Stress management</span>
-              <span class="starter-tag">Sleep improvement</span>
-              <span class="starter-tag">Mindfulness techniques</span>
-              <span class="starter-tag">Building resilience</span>
-              <span class="starter-tag">Goal setting</span>
-              <span class="starter-tag">Emotional support</span>
+          <button 
+            class="control-btn" 
+            *ngIf="ttsState.isSpeaking"
+            (click)="stopSpeaking()"
+            title="Stop Speaking">
+            ⏹️ Stop
+          </button>
+          
+          <button 
+            class="control-btn" 
+            (click)="toggleAvatar()"
+            title="Toggle Avatar">
+            👤 Avatar
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat Messages Section -->
+      <div class="messages-section">
+        <!-- Chat Messages -->
+        <div class="chat-messages" #messagesContainer>
+          
+          <!-- Welcome Message (when no conversation history) -->
+          <div *ngIf="messages.length === 0" class="welcome-message">
+            <div class="welcome-content">
+              <div class="welcome-icon">🌟</div>
+              <h3>{{ getGreeting() }} Welcome to Resilience AI</h3>
+              <p>I'm here to support your mental wellness journey. Our conversations are completely private and happen offline on your device.</p>
+              
+              <div class="conversation-starters">
+                <h4>You can ask me about:</h4>
+                <div class="starter-tags">
+                  <span class="starter-tag" (click)="userInput='I feel stressed about work'; sendMessage()">Stress management</span>
+                  <span class="starter-tag" (click)="userInput='I have trouble sleeping'; sendMessage()">Sleep improvement</span>
+                  <span class="starter-tag" (click)="userInput='How can I practice mindfulness?'; sendMessage()">Mindfulness techniques</span>
+                  <span class="starter-tag" (click)="userInput='How can I build resilience?'; sendMessage()">Building resilience</span>
+                  <span class="starter-tag" (click)="userInput='Help me set goals'; sendMessage()">Goal setting</span>
+                  <span class="starter-tag" (click)="userInput='I need emotional support'; sendMessage()">Emotional support</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conversation Messages -->
+          <div *ngFor="let message of messages; trackBy: messageTrackBy" 
+               class="message-wrapper" 
+               [class.user-message]="message.role === 'user'"
+               [class.ai-message]="message.role === 'assistant'">
+            
+            <div class="message-bubble">
+              <!-- Message Header -->
+              <div class="message-header">
+                <span class="message-sender">
+                  {{ message.role === 'user' ? 'You' : 'RAI Coach' }}
+                </span>
+                <span class="message-time">
+                  {{ message.timestamp | date:'short' }}
+                </span>
+                <!-- Speak Button for AI messages -->
+                <button 
+                  *ngIf="message.role === 'assistant' && headTts.isSupported()" 
+                  class="speak-btn"
+                  (click)="speakMessage(message)"
+                  [disabled]="ttsState.isSpeaking"
+                  title="Speak this message">
+                  🔊
+                </button>
+              </div>
+              
+              <!-- Message Content -->
+              <div class="message-content">
+                {{ message.content }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div *ngIf="isGenerating" class="typing-indicator">
+            <div class="typing-bubble">
+              <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="typing-text">RAI Coach is thinking...</span>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Conversation Messages -->
-      <div *ngFor="let message of messages; trackBy: trackByMessage" 
-           class="message-container" 
-           [class.user-message]="message.role === 'user'"
-           [class.assistant-message]="message.role === 'assistant'">
-        
-        <div class="message-bubble">
-          <div class="message-header" *ngIf="message.role === 'assistant'">
-            <span class="message-author">RAI</span>
-            <span class="message-time">{{ formatTime(message.timestamp) }}</span>
-          </div>
-          
-          <div class="message-content">{{ message.content }}</div>
-          
-          <div class="message-time user-time" *ngIf="message.role === 'user'">
-            {{ formatTime(message.timestamp) }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Typing Indicator -->
-      <div *ngIf="isGenerating" class="message-container assistant-message">
-        <div class="message-bubble typing">
-          <div class="message-header">
-            <span class="message-author">RAI</span>
-            <span class="typing-text">is thinking...</span>
-          </div>
-          <div class="typing-indicator">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Chat Input -->
-    <div class="chat-input-container">
-      <div class="input-wrapper">
+    <!-- Input Section -->
+    <div class="chat-input-section">
+      <div class="input-container">
         <textarea 
           [(ngModel)]="userInput"
           (keydown)="onKeyPress($event)"
-          [placeholder]="inputPlaceholder"
-          [disabled]="!isChatReady || isGenerating"
-          class="chat-input"
-          rows="1"
-          maxlength="1000">
+          placeholder="Share what's on your mind... (Press Enter to send, Shift+Enter for new line)"
+          class="message-input"
+          rows="2"
+          [disabled]="isGenerating"
+          #messageInput>
         </textarea>
         
         <button 
-          (click)="sendMessage()"
-          [disabled]="!userInput.trim() || !isChatReady || isGenerating"
-          class="send-button">
-          <span *ngIf="!isGenerating">Send</span>
-          <span *ngIf="isGenerating" class="sending">
-            <div class="spinner-small"></div>
-          </span>
+          (click)="sendMessage()" 
+          [disabled]="!userInput.trim() || isGenerating || !isChatReady"
+          class="send-button"
+          title="Send Message">
+          <span *ngIf="!isGenerating">➤</span>
+          <span *ngIf="isGenerating" class="loading-spinner">⟳</span>
         </button>
       </div>
       
-      <!-- Chat Controls -->
-      <div class="chat-controls">
-        <button 
-          (click)="clearConversation()"
-          [disabled]="messages.length === 0"
-          class="control-button clear">
-          Clear Chat
-        </button>
+      <!-- Input Status -->
+      <div class="input-status" *ngIf="!isChatReady">
+        <span class="status-text">⏳ Waiting for AI model to initialize...</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Debug Info (only in development) -->
+  <div class="debug-info" *ngIf="false">
+    <details>
+      <summary>🔧 Debug Information</summary>
+      <div class="debug-content">
+        <h4>AI State:</h4>
+        <pre>{{ aiState | json }}</pre>
         
-        <div class="privacy-indicator">
-          <span class="privacy-icon">🔒</span>
-          <span>100% Private & Offline</span>
-        </div>
+        <h4>TTS State:</h4>
+        <pre>{{ ttsState | json }}</pre>
+        
+        <h4>TTS Info:</h4>
+        <pre>{{ getTTSInfo() | json }}</pre>
       </div>
-    </div>
+    </details>
   </div>
-
-  <!-- Loading State (when initializing) -->
-  <div *ngIf="isModelReady && !isChatReady" class="loading-state">
-    <div class="loading-content">
-      <div class="loading-spinner"></div>
-      <h3>Initializing AI Coach</h3>
-      <p>Setting up your personal wellness assistant...</p>
-      <div class="loading-details">
-        <span>Device: {{ aiDevice }}</span>
-      </div>
-    </div>
-  </div>
-
 </div>

@@ -4,12 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { AiCoachService, ConversationMessage, AiCoachState } from '../../services/ai-coach.service';
 import { ModelDownloadService } from '../../services/model-download';
+import { HeadTts, TTSState } from '../../services/head-tts';
 import { ModelDownload } from '../model-download/model-download';
+import { Avatar } from '../avatar/avatar';
 
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModelDownload],
+  imports: [CommonModule, FormsModule, ModelDownload, Avatar],
   templateUrl: './chat-window.html',
   styleUrl: './chat-window.scss'
 })
@@ -24,12 +26,25 @@ export class ChatWindow implements OnInit, OnDestroy {
     device: 'unknown'
   };
 
+  // TTS and Avatar state
+  ttsState: TTSState = {
+    isSpeaking: false,
+    isPaused: false,
+    currentText: '',
+    currentViseme: 'sil',
+    progress: 0
+  };
+  avatarEnabled = true;
+  autoSpeakReplies = true;
+
   private aiStateSubscription?: Subscription;
   private modelStatusSubscription?: Subscription;
+  private ttsStateSubscription?: Subscription;
 
   constructor(
     private aiCoachService: AiCoachService,
-    private modelDownloadService: ModelDownloadService
+    private modelDownloadService: ModelDownloadService,
+    public headTts: HeadTts
   ) {}
 
   ngOnInit() {
@@ -51,12 +66,23 @@ export class ChatWindow implements OnInit, OnDestroy {
       }
     );
 
+    // Subscribe to TTS state changes
+    this.ttsStateSubscription = this.headTts.state$.subscribe(
+      state => {
+        this.ttsState = state;
+      }
+    );
+
+    // Update messages initially
     this.updateMessages();
+
+    console.log('ChatWindow: Initialized with HeadTTS support:', this.headTts.isSupported());
   }
 
   ngOnDestroy() {
     this.aiStateSubscription?.unsubscribe();
     this.modelStatusSubscription?.unsubscribe();
+    this.ttsStateSubscription?.unsubscribe();
   }
 
   /**
@@ -69,44 +95,85 @@ export class ChatWindow implements OnInit, OnDestroy {
   /**
    * Send user message and get AI response
    */
-  async sendMessage() {
-    if (!this.userInput.trim() || this.isGenerating || !this.aiCoachService.isReady()) {
-      return;
-    }
+  async sendMessage(): Promise<void> {
+    const message = this.userInput.trim();
+    if (!message || this.isGenerating) return;
 
-    const userMessage = this.userInput.trim();
+    // Stop any current TTS
+    this.headTts.stop();
+
+    console.log('ChatWindow: Sending message:', message);
+
+    // Clear input and set generating state
     this.userInput = '';
     this.isGenerating = true;
 
     try {
-      console.log('[ChatWindow] Sending message:', userMessage);
-      
-      // Generate AI response
-      const response = await this.aiCoachService.generateResponse(userMessage);
-      
-      console.log('[ChatWindow] Received response:', response);
-      
-      // Update messages from the service
+      // Send message to AI coach
+      const response = await this.aiCoachService.generateResponse(message);
+      console.log('ChatWindow: Received response:', response);
+
+      // Update messages
       this.updateMessages();
-      
+
+      // Auto-speak the AI response if enabled
+      if (this.autoSpeakReplies && response && this.headTts.isSupported()) {
+        try {
+          await this.speakText(response);
+        } catch (error) {
+          console.warn('ChatWindow: TTS failed:', error);
+        }
+      }
+
     } catch (error) {
-      console.error('[ChatWindow] Error generating response:', error);
-      
-      // Add error message
-      this.messages.push({
-        role: 'assistant',
-        content: "I'm sorry, I encountered an error while processing your message. Please try again.",
-        timestamp: new Date()
-      });
+      console.error('ChatWindow: Error sending message:', error);
     } finally {
       this.isGenerating = false;
+    }
+  }
+
+  async speakText(text: string): Promise<void> {
+    if (!text || !this.headTts.isSupported()) {
+      console.warn('ChatWindow: TTS not supported or empty text');
+      return;
+    }
+
+    try {
+      await this.headTts.speak(text, {
+        rate: 0.9,
+        pitch: 1.0,
+        volume: 0.8
+      });
+    } catch (error) {
+      console.error('ChatWindow: TTS error:', error);
+    }
+  }
+
+  speakMessage(message: ConversationMessage): void {
+    if (message.content) {
+      this.speakText(message.content);
+    }
+  }
+
+  stopSpeaking(): void {
+    this.headTts.stop();
+  }
+
+  toggleAvatar(): void {
+    this.avatarEnabled = !this.avatarEnabled;
+  }
+
+  toggleAutoSpeak(): void {
+    this.autoSpeakReplies = !this.autoSpeakReplies;
+    if (!this.autoSpeakReplies) {
+      this.stopSpeaking();
     }
   }
 
   /**
    * Handle Enter key press in input
    */
-  onKeyPress(event: KeyboardEvent) {
+  onKeyPress(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
@@ -125,28 +192,21 @@ export class ChatWindow implements OnInit, OnDestroy {
    * Check if chat is ready for use
    */
   get isChatReady(): boolean {
-    return this.aiCoachService.isReady();
+    return this.aiState.isInitialized;
   }
 
   /**
    * Check if model is ready
    */
   get isModelReady(): boolean {
-    return this.modelDownloadService.isModelReady();
+    return this.aiState.modelLoaded;
   }
 
   /**
    * Get AI device type for display
    */
   get aiDevice(): string {
-    switch (this.aiState.device) {
-      case 'webgpu':
-        return 'WebGPU (Accelerated)';
-      case 'wasm':
-        return 'WebAssembly';
-      default:
-        return 'Unknown';
-    }
+    return this.aiState.device.toUpperCase();
   }
 
   /**
@@ -178,6 +238,24 @@ export class ChatWindow implements OnInit, OnDestroy {
    * Track function for message list to improve performance
    */
   trackByMessage(index: number, message: ConversationMessage): string {
+    return `${message.timestamp.getTime()}-${message.role}`;
+  }
+
+  // Get appropriate greeting based on time of day
+  getGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning!";
+    if (hour < 17) return "Good afternoon!";
+    return "Good evening!";
+  }
+
+  // Get TTS synthesis info for debugging
+  getTTSInfo(): any {
+    return this.headTts.getSynthesisInfo();
+  }
+
+  // TrackBy function for ngFor optimization
+  messageTrackBy(index: number, message: ConversationMessage): string {
     return `${message.timestamp.getTime()}-${message.role}`;
   }
 }

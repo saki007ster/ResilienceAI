@@ -1,0 +1,270 @@
+.avatar-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+
+  &.speaking {
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
+    animation: speaking-pulse 2s ease-in-out infinite;
+  }
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.avatar-canvas {
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+  box-shadow: 
+    inset 5px 5px 10px rgba(0, 0, 0, 0.1),
+    inset -5px -5px 10px rgba(255, 255, 255, 0.5),
+    0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+.speaking-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 20px;
+  color: #4caf50;
+  font-size: 0.9rem;
+  font-weight: 500;
+  animation: fade-in 0.3s ease;
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #4caf50;
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  span {
+    white-space: nowrap;
+  }
+}
+
+.viseme-debug {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  min-width: 32px;
+  text-align: center;
+  animation: viseme-update 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.avatar-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  opacity: 0;
+  animation: controls-fade-in 0.5s ease 0.2s forwards;
+
+  .control-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    &:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    &.pause-btn:hover {
+      background: rgba(255, 193, 7, 0.9);
+    }
+
+    &.stop-btn:hover {
+      background: rgba(244, 67, 54, 0.9);
+      color: #fff;
+    }
+  }
+}
+
+// Animations
+@keyframes speaking-pulse {
+  0%, 100% {
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(76, 175, 80, 0.6);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes controls-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes viseme-update {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .avatar-container {
+    padding: 0.75rem;
+    border-radius: 16px;
+  }
+
+  .avatar-canvas {
+    // Size will be controlled by the component's size input
+  }
+
+  .speaking-status {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .avatar-controls .control-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .viseme-debug {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .avatar-container {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .avatar-canvas {
+    background: linear-gradient(145deg, #34495e, #2c3e50);
+    box-shadow: 
+      inset 5px 5px 10px rgba(0, 0, 0, 0.3),
+      inset -5px -5px 10px rgba(255, 255, 255, 0.02),
+      0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .avatar-controls .control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .avatar-container {
+    border: 2px solid #000;
+    background: #fff;
+  }
+
+  .speaking-status {
+    border: 2px solid #4caf50;
+    background: rgba(76, 175, 80, 0.1);
+  }
+
+  .avatar-controls .control-btn {
+    border: 2px solid #333;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .avatar-container,
+  .avatar-canvas,
+  .speaking-status,
+  .avatar-controls .control-btn,
+  .viseme-debug {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .pulse-dot {
+    animation: none !important;
+  }
+}
