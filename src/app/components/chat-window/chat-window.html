@@ -1,9 +1,144 @@
-<div class="chat-window">
-  <h2>AI Wellness Coach Chat</h2>
-  <p>Welcome to your personal AI wellness coach. This is where you'll have conversations with your AI companion.</p>
-  <div class="chat-placeholder">
-    <p>💬 Chat interface will be implemented here</p>
-    <p>🎤 Voice input and audio output</p>
-    <p>👤 Lip-synced avatar display</p>
+<div class="chat-window-container">
+  
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="header-info">
+      <h2>🧠 Resilience AI Coach</h2>
+      <p>Your private, offline wellness companion</p>
+    </div>
+    
+    <div class="status-indicators">
+      <div class="status-item" [class.active]="isModelReady">
+        <span class="status-dot"></span>
+        <span>{{ isModelReady ? 'Model Ready' : 'Model Not Ready' }}</span>
+      </div>
+      
+      <div class="status-item" [class.active]="isChatReady && isModelReady">
+        <span class="status-dot"></span>
+        <span>{{ isChatReady && isModelReady ? aiDevice : 'AI Initializing' }}</span>
+      </div>
+    </div>
   </div>
+
+  <!-- Model Download Section (shown when model not ready) -->
+  <div *ngIf="!isModelReady" class="download-section">
+    <app-model-download></app-model-download>
+  </div>
+
+  <!-- Chat Interface (shown when model is ready) -->
+  <div *ngIf="isModelReady" class="chat-interface">
+    
+    <!-- Chat Messages -->
+    <div class="chat-messages" #messagesContainer>
+      
+      <!-- Welcome Message (when no conversation history) -->
+      <div *ngIf="messages.length === 0" class="welcome-message">
+        <div class="welcome-content">
+          <div class="welcome-icon">🌟</div>
+          <h3>Welcome to Resilience AI</h3>
+          <p>I'm here to support your mental wellness journey. Our conversations are completely private and happen offline on your device.</p>
+          
+          <div class="conversation-starters">
+            <h4>You can ask me about:</h4>
+            <div class="starter-tags">
+              <span class="starter-tag">Stress management</span>
+              <span class="starter-tag">Sleep improvement</span>
+              <span class="starter-tag">Mindfulness techniques</span>
+              <span class="starter-tag">Building resilience</span>
+              <span class="starter-tag">Goal setting</span>
+              <span class="starter-tag">Emotional support</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversation Messages -->
+      <div *ngFor="let message of messages; trackBy: trackByMessage" 
+           class="message-container" 
+           [class.user-message]="message.role === 'user'"
+           [class.assistant-message]="message.role === 'assistant'">
+        
+        <div class="message-bubble">
+          <div class="message-header" *ngIf="message.role === 'assistant'">
+            <span class="message-author">RAI</span>
+            <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+          </div>
+          
+          <div class="message-content">{{ message.content }}</div>
+          
+          <div class="message-time user-time" *ngIf="message.role === 'user'">
+            {{ formatTime(message.timestamp) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div *ngIf="isGenerating" class="message-container assistant-message">
+        <div class="message-bubble typing">
+          <div class="message-header">
+            <span class="message-author">RAI</span>
+            <span class="typing-text">is thinking...</span>
+          </div>
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="chat-input-container">
+      <div class="input-wrapper">
+        <textarea 
+          [(ngModel)]="userInput"
+          (keydown)="onKeyPress($event)"
+          [placeholder]="inputPlaceholder"
+          [disabled]="!isChatReady || isGenerating"
+          class="chat-input"
+          rows="1"
+          maxlength="1000">
+        </textarea>
+        
+        <button 
+          (click)="sendMessage()"
+          [disabled]="!userInput.trim() || !isChatReady || isGenerating"
+          class="send-button">
+          <span *ngIf="!isGenerating">Send</span>
+          <span *ngIf="isGenerating" class="sending">
+            <div class="spinner-small"></div>
+          </span>
+        </button>
+      </div>
+      
+      <!-- Chat Controls -->
+      <div class="chat-controls">
+        <button 
+          (click)="clearConversation()"
+          [disabled]="messages.length === 0"
+          class="control-button clear">
+          Clear Chat
+        </button>
+        
+        <div class="privacy-indicator">
+          <span class="privacy-icon">🔒</span>
+          <span>100% Private & Offline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State (when initializing) -->
+  <div *ngIf="isModelReady && !isChatReady" class="loading-state">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h3>Initializing AI Coach</h3>
+      <p>Setting up your personal wellness assistant...</p>
+      <div class="loading-details">
+        <span>Device: {{ aiDevice }}</span>
+      </div>
+    </div>
+  </div>
+
 </div>
