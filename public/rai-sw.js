@@ -8,7 +8,7 @@ importScripts('./ngsw-worker.js');
 
 const MODEL_CACHE_NAME = 'rai-model-v1';
 const MODEL_URL = '/assets/gemma-model.bin';
-const MODEL_SIZE = 529 * 1024 * 1024; // ~529MB
+const MODEL_SIZE = 1 * 1024 * 1024; // 1MB for testing (will be 529MB in production)
 
 console.log('[RAI Service Worker] Custom service worker loaded');
 
@@ -71,8 +71,8 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  // Let Angular service worker handle other requests
-  // This will fall through to the imported ngsw-worker.js
+  // For all other requests, use default fetch behavior
+  event.respondWith(fetch(event.request));
 });
 
 /**
@@ -248,6 +248,7 @@ async function cleanupOldCaches() {
 self.addEventListener('install', event => {
   console.log('[RAI Service Worker] Installing...');
   event.waitUntil(cleanupOldCaches());
+  self.skipWaiting(); // Activate immediately
 });
 
 /**
@@ -256,4 +257,5 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   console.log('[RAI Service Worker] Activating...');
   event.waitUntil(cleanupOldCaches());
+  event.waitUntil(self.clients.claim()); // Take control immediately
 }); 

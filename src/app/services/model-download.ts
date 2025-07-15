@@ -218,7 +218,7 @@ export class ModelDownloadService {
    * Get estimated download size in MB
    */
   getModelSize(): number {
-    return 529; // MB
+    return 1; // 1MB for testing (will be 529MB in production)
   }
 
   /**
