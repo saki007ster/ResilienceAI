@@ -37,6 +37,7 @@ export class AiCoachService {
 
   constructor(private modelDownloadService: ModelDownloadService) {
     this.initializeService();
+    this.startModelReadinessCheck();
   }
 
   /**
@@ -325,5 +326,29 @@ Remember: You're here to listen, support, and guide - not to solve everything. S
    */
   async retryInitialization(): Promise<void> {
     await this.initializeModel();
+  }
+
+  /**
+   * Start checking for model readiness periodically
+   */
+  private startModelReadinessCheck(): void {
+    const checkInterval = setInterval(() => {
+      const currentState = this.stateSubject.value;
+      
+      // If not initialized and model is ready, try to initialize
+      if (!currentState.isInitialized && !currentState.isLoading) {
+        const modelReady = this.modelDownloadService.isModelReady();
+        console.log('[AiCoach] Checking model readiness:', modelReady);
+        
+        if (modelReady) {
+          console.log('[AiCoach] Model became ready, initializing...');
+          clearInterval(checkInterval);
+          this.initializeModel();
+        }
+      } else if (currentState.isInitialized) {
+        // Stop checking once initialized
+        clearInterval(checkInterval);
+      }
+    }, 2000); // Check every 2 seconds
   }
 } 
