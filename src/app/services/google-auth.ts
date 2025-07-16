@@ -231,6 +231,8 @@ export class GoogleAuth {
    * Exchange authorization code for access tokens
    */
   private async exchangeCodeForTokens(code: string, codeVerifier: string): Promise<void> {
+    console.log('[GoogleAuth] Exchanging authorization code for tokens...');
+    
     const response = await fetch(this.TOKEN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -240,19 +242,35 @@ export class GoogleAuth {
         code_verifier: codeVerifier,
         grant_type: 'authorization_code',
         redirect_uri: this.REDIRECT_URI
+        // Note: No client_secret needed for public clients (frontend apps)
       })
     });
 
+    console.log('[GoogleAuth] Token exchange response status:', response.status);
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`Token exchange failed: ${error.error_description || error.error}`);
+      const errorText = await response.text();
+      console.error('[GoogleAuth] Token exchange error response:', errorText);
+      try {
+        const error = JSON.parse(errorText);
+        throw new Error(`Token exchange failed: ${error.error_description || error.error}`);
+      } catch (parseError) {
+        throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
+      }
     }
 
     const tokens: GoogleTokens = await response.json();
+    console.log('[GoogleAuth] Received tokens:', { 
+      hasAccessToken: !!tokens.access_token, 
+      hasRefreshToken: !!tokens.refresh_token,
+      expiresIn: tokens.expires_in 
+    });
+    
     tokens.expires_at = Date.now() + (tokens.expires_in * 1000);
     
     this.tokens = tokens;
     this.storeTokens(tokens);
+    console.log('[GoogleAuth] Tokens stored successfully');
   }
 
   /**
@@ -303,6 +321,7 @@ export class GoogleAuth {
       throw new Error('No refresh token available');
     }
 
+    console.log('[GoogleAuth] Refreshing access token...');
     const response = await fetch(this.TOKEN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -310,14 +329,19 @@ export class GoogleAuth {
         client_id: this.CLIENT_ID,
         refresh_token: this.tokens.refresh_token,
         grant_type: 'refresh_token'
+        // Note: No client_secret needed for public clients (frontend apps)
       })
     });
 
     if (!response.ok) {
-      throw new Error('Token refresh failed');
+      const errorText = await response.text();
+      console.error('[GoogleAuth] Token refresh error:', errorText);
+      throw new Error(`Token refresh failed: ${response.status}`);
     }
 
     const newTokens = await response.json();
+    console.log('[GoogleAuth] Token refresh successful');
+    
     this.tokens = {
       ...this.tokens,
       access_token: newTokens.access_token,
