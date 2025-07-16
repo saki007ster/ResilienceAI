@@ -245,11 +245,12 @@
     <div class="step-card">
       <div class="step-icon">💭</div>
       <h3>What Would You Like to Discuss?</h3>
-      <p>Help your coach prepare by sharing what you'd like to focus on (optional).</p>
+      <p>Help your coach prepare by sharing what you'd like to focus on (optional). You can select multiple topics.</p>
       
       <div class="topic-input">
         <textarea 
           [(ngModel)]="sessionTopic"
+          (ngModelChange)="updateSessionTopicFromTextarea()"
           placeholder="e.g., Managing work stress, improving sleep habits, relationship concerns..."
           class="topic-textarea"
           rows="4">
@@ -260,11 +261,23 @@
         <h4>Popular Topics:</h4>
         <div class="suggestions-grid">
           <button 
-            *ngFor="let suggestion of ['Anxiety Management', 'Stress Reduction', 'Work-Life Balance', 'Goal Setting', 'Self-Esteem', 'Sleep Issues']"
+            *ngFor="let suggestion of topicSuggestions"
             class="suggestion-btn"
-            (click)="sessionTopic = suggestion">
-            {{ suggestion }}
+            [class.selected]="isTopicSelected(suggestion)"
+            (click)="toggleTopic(suggestion)">
+            <span class="topic-text">{{ suggestion }}</span>
+            <span *ngIf="isTopicSelected(suggestion)" class="topic-checkmark">✓</span>
           </button>
+        </div>
+      </div>
+
+      <div *ngIf="selectedTopics.length > 0" class="selected-topics-summary">
+        <h4>Selected Topics ({{ selectedTopics.length }}):</h4>
+        <div class="selected-topics-list">
+          <span *ngFor="let topic of selectedTopics" class="selected-topic-tag">
+            {{ topic }}
+            <button class="remove-topic" (click)="toggleTopic(topic)" title="Remove topic">×</button>
+          </span>
         </div>
       </div>
       

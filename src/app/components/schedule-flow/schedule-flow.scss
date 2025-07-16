@@ -491,23 +491,26 @@
   // Topic Selection
   .topic-step {
     .topic-input {
-      margin: 25px 0;
+      margin-bottom: 2rem;
 
       .topic-textarea {
         width: 100%;
-        padding: 16px;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border: 2px solid rgba(75, 85, 99, 0.3);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(10px);
         font-size: 1rem;
-        color: #1a1a1a;
+        line-height: 1.5;
+        color: #333;
         resize: vertical;
         min-height: 100px;
+        transition: all 0.3s ease;
 
         &:focus {
           outline: none;
-          border-color: rgba(103, 126, 234, 0.5);
+          border-color: #4f46e5;
+          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
         &::placeholder {
@@ -517,31 +520,110 @@
     }
 
     .topic-suggestions {
-      text-align: left;
-      margin: 25px 0;
+      margin-bottom: 2rem;
 
       h4 {
-        margin-bottom: 16px;
-        color: #1a1a1a;
+        color: #374151;
+        margin: 0 0 1rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
       }
 
       .suggestions-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
 
         .suggestion-btn {
-          padding: 10px 16px;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.75rem 1rem;
+          border: 2px solid rgba(75, 85, 99, 0.3);
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(10px);
+          color: #374151;
           cursor: pointer;
           transition: all 0.3s ease;
           font-size: 0.9rem;
+          text-align: left;
 
           &:hover {
-            background: rgba(103, 126, 234, 0.1);
-            border-color: rgba(103, 126, 234, 0.3);
+            border-color: #4f46e5;
+            background: rgba(79, 70, 229, 0.05);
+            transform: translateY(-1px);
+          }
+
+          &.selected {
+            border-color: #4f46e5;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(99, 102, 241, 0.1));
+            color: #4f46e5;
+
+            .topic-checkmark {
+              color: #4f46e5;
+              font-weight: bold;
+            }
+          }
+
+          .topic-text {
+            flex: 1;
+          }
+
+          .topic-checkmark {
+            margin-left: 0.5rem;
+            font-size: 1.2rem;
+          }
+        }
+      }
+    }
+
+    .selected-topics-summary {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+      border: 2px solid rgba(34, 197, 94, 0.3);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+
+      h4 {
+        color: #059669;
+        margin: 0 0 1rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .selected-topics-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        .selected-topic-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 0.75rem;
+          background: rgba(34, 197, 94, 0.2);
+          border: 1px solid rgba(34, 197, 94, 0.4);
+          border-radius: 20px;
+          color: #065f46;
+          font-size: 0.85rem;
+          font-weight: 500;
+
+          .remove-topic {
+            background: none;
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+            padding: 0;
+            margin: 0;
+            transition: color 0.2s ease;
+
+            &:hover {
+              color: #b91c1c;
+            }
           }
         }
       }
@@ -913,6 +995,20 @@
       .primary-btn, .secondary-btn {
         width: 100%;
         justify-content: center;
+      }
+    }
+
+    .topic-step .topic-suggestions .suggestions-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .topic-step .selected-topics-summary .selected-topics-list {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .selected-topic-tag {
+        width: 100%;
+        justify-content: space-between;
       }
     }
   }

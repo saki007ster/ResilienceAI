@@ -39,6 +39,7 @@ export class ScheduleFlow implements OnInit, OnDestroy {
   selectedDate?: Date;
   selectedTimeSlot?: TimeSlot;
   sessionTopic = '';
+  selectedTopics: string[] = []; // Track multiple selected topics
   scheduledEvent?: CalendarEvent;
 
   // UI state
@@ -49,6 +50,20 @@ export class ScheduleFlow implements OnInit, OnDestroy {
 
   // Available dates (next 30 days, excluding weekends)
   availableDates: Date[] = [];
+
+  // Common topic suggestions
+  topicSuggestions = [
+    'Anxiety Management', 
+    'Stress Reduction', 
+    'Work-Life Balance', 
+    'Goal Setting', 
+    'Self-Esteem', 
+    'Sleep Issues',
+    'Relationship Issues',
+    'Career Counseling',
+    'Mindfulness',
+    'Depression Support'
+  ];
 
   // Scheduling steps
   steps: SchedulingStep[] = [
@@ -215,10 +230,50 @@ export class ScheduleFlow implements OnInit, OnDestroy {
   }
 
   /**
+   * Toggle topic selection (add/remove from selected topics)
+   */
+  toggleTopic(topic: string): void {
+    const index = this.selectedTopics.indexOf(topic);
+    if (index > -1) {
+      // Topic is already selected, remove it
+      this.selectedTopics.splice(index, 1);
+    } else {
+      // Topic is not selected, add it
+      this.selectedTopics.push(topic);
+    }
+    
+    // Update the sessionTopic string for backend compatibility
+    this.sessionTopic = this.selectedTopics.join(', ');
+    
+    console.log('[ScheduleFlow] Selected topics:', this.selectedTopics);
+  }
+
+  /**
+   * Check if a topic is currently selected
+   */
+  isTopicSelected(topic: string): boolean {
+    return this.selectedTopics.includes(topic);
+  }
+
+  /**
+   * Update session topic from textarea and sync with selected topics
+   */
+  updateSessionTopicFromTextarea(): void {
+    // When user types in textarea, clear selected topics and parse the text
+    if (this.sessionTopic) {
+      this.selectedTopics = this.sessionTopic.split(',').map(topic => topic.trim()).filter(topic => topic.length > 0);
+    } else {
+      this.selectedTopics = [];
+    }
+  }
+
+  /**
    * Set session topic and move to confirmation
    */
   setSessionTopic(): void {
-    this.updateStepCompletion('topic', !!this.sessionTopic.trim());
+    // Update sessionTopic string with current selected topics
+    this.sessionTopic = this.selectedTopics.join(', ');
+    this.updateStepCompletion('topic', this.selectedTopics.length > 0 || !!this.sessionTopic.trim());
     this.goToStep('confirm');
   }
 
@@ -362,6 +417,7 @@ export class ScheduleFlow implements OnInit, OnDestroy {
     this.selectedDate = undefined;
     this.selectedTimeSlot = undefined;
     this.sessionTopic = '';
+    this.selectedTopics = [];
     this.scheduledEvent = undefined;
     this.error = undefined;
     
@@ -535,6 +591,7 @@ export class ScheduleFlow implements OnInit, OnDestroy {
     this.selectedDate = undefined;
     this.selectedTimeSlot = undefined;
     this.sessionTopic = '';
+    this.selectedTopics = [];
     this.scheduledEvent = undefined;
     this.error = undefined;
     
