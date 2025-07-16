@@ -28,7 +28,7 @@ export interface GoogleTokens {
   providedIn: 'root'
 })
 export class GoogleAuth {
-  private readonly CLIENT_ID = 'your-google-client-id.apps.googleusercontent.com';
+  private readonly CLIENT_ID = this.getClientId();
   private readonly REDIRECT_URI = `${window.location.origin}/auth/callback`;
   private readonly SCOPE = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
   private readonly AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -46,6 +46,36 @@ export class GoogleAuth {
 
   constructor() {
     this.initializeAuth();
+  }
+
+  /**
+   * Get Google Client ID from environment or localStorage
+   */
+  private getClientId(): string {
+    // First try to get from localStorage (for easy configuration during development)
+    const storedClientId = localStorage.getItem('google_client_id');
+    if (storedClientId && storedClientId !== 'your-google-client-id.apps.googleusercontent.com') {
+      return storedClientId;
+    }
+
+    // Fallback to placeholder (will show setup instructions)
+    return 'your-google-client-id.apps.googleusercontent.com';
+  }
+
+  /**
+   * Check if Google OAuth is properly configured
+   */
+  isConfigured(): boolean {
+    return this.CLIENT_ID !== 'your-google-client-id.apps.googleusercontent.com';
+  }
+
+  /**
+   * Set Google Client ID (for development setup)
+   */
+  setClientId(clientId: string): void {
+    localStorage.setItem('google_client_id', clientId);
+    // Reload the page to reinitialize with new client ID
+    window.location.reload();
   }
 
   /**
@@ -72,6 +102,11 @@ export class GoogleAuth {
   async signIn(): Promise<void> {
     try {
       this.updateState({ isLoading: true, error: undefined });
+
+      // Check if OAuth is properly configured
+      if (!this.isConfigured()) {
+        throw new Error('Google OAuth is not configured. Please set up your Google Cloud Console project and update the client ID.');
+      }
 
       // Generate PKCE parameters
       this.codeVerifier = this.generateCodeVerifier();

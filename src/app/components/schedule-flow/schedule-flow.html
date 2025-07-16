@@ -62,9 +62,40 @@
         </div>
       </div>
 
+      <!-- OAuth Setup Instructions -->
+      <div *ngIf="!isOAuthConfigured()" class="oauth-setup">
+        <div class="setup-warning">
+          <span class="warning-icon">⚙️</span>
+          <h4>Google OAuth Setup Required</h4>
+          <p>To enable calendar integration, you need to set up Google OAuth credentials:</p>
+          <ol>
+            <li>Go to <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a></li>
+            <li>Create a new project or select existing</li>
+            <li>Enable Google Calendar API</li>
+            <li>Create OAuth 2.0 credentials (Web application)</li>
+            <li>Add redirect URI: <code>{{ getRedirectUri() }}</code></li>
+            <li>Copy your Client ID and paste it below:</li>
+          </ol>
+          
+          <div class="client-id-input">
+            <input 
+              type="text" 
+              placeholder="Paste your Google Client ID here..."
+              [(ngModel)]="tempClientId"
+              class="form-input">
+            <button 
+              class="primary-btn"
+              (click)="updateClientId()"
+              [disabled]="!tempClientId">
+              Save & Continue
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="auth-actions">
         <button 
-          *ngIf="!authState.isAuthenticated && !authState.isLoading"
+          *ngIf="!authState.isAuthenticated && !authState.isLoading && isOAuthConfigured()"
           class="google-signin-btn"
           (click)="signInWithGoogle()">
           <span class="google-icon">G</span>

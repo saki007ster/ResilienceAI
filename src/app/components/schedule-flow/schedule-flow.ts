@@ -45,6 +45,7 @@ export class ScheduleFlow implements OnInit, OnDestroy {
   showDatePicker = false;
   isScheduling = false;
   error?: string;
+  tempClientId = '';
 
   // Available dates (next 30 days, excluding weekends)
   availableDates: Date[] = [];
@@ -443,5 +444,28 @@ export class ScheduleFlow implements OnInit, OnDestroy {
   get progressPercentage(): number {
     const completedSteps = this.steps.filter(step => step.completed).length;
     return Math.round((completedSteps / this.steps.length) * 100);
+  }
+
+  /**
+   * Check if OAuth is properly configured
+   */
+  isOAuthConfigured(): boolean {
+    return this.googleAuth.isConfigured();
+  }
+
+  /**
+   * Get redirect URI for OAuth setup
+   */
+  getRedirectUri(): string {
+    return `${window.location.origin}/auth/callback`;
+  }
+
+  /**
+   * Update Google Client ID
+   */
+  updateClientId(): void {
+    if (this.tempClientId.trim()) {
+      this.googleAuth.setClientId(this.tempClientId.trim());
+    }
   }
 }
