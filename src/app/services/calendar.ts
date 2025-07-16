@@ -427,4 +427,36 @@ export class Calendar {
     const currentState = this.stateSubject.value;
     this.stateSubject.next({ ...currentState, ...update });
   }
+
+  /**
+   * Get list of available coaches (without time slots)
+   */
+  async getAvailableCoaches(): Promise<CoachAvailability[]> {
+    try {
+      console.log('[Calendar] Loading available coaches...');
+      
+      // Return mock coaches for demo (in production, this would fetch from a coaches API)
+      const coaches = this.MOCK_COACHES.map(coach => ({
+        ...coach,
+        timeSlots: [] // No time slots needed for initial coach selection
+      }));
+
+      this.updateState({ 
+        isLoading: false,
+        availability: coaches,
+        lastSync: new Date()
+      });
+
+      console.log('[Calendar] ✅ Loaded', coaches.length, 'available coaches');
+      return coaches;
+
+    } catch (error) {
+      console.error('[Calendar] Failed to load coaches:', error);
+      this.updateState({ 
+        isLoading: false, 
+        error: error instanceof Error ? error.message : 'Failed to load coaches' 
+      });
+      return [];
+    }
+  }
 }

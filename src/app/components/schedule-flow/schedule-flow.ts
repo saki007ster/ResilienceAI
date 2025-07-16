@@ -311,6 +311,24 @@ export class ScheduleFlow implements OnInit, OnDestroy {
   goToStep(stepId: SchedulingStep['id']): void {
     this.currentStep = stepId;
     this.error = undefined;
+    
+    // Load data when entering specific steps
+    if (stepId === 'coach') {
+      this.loadAvailableCoaches();
+    }
+  }
+
+  /**
+   * Load available coaches for selection
+   */
+  private async loadAvailableCoaches(): Promise<void> {
+    try {
+      console.log('[ScheduleFlow] Loading available coaches...');
+      await this.calendar.getAvailableCoaches();
+    } catch (error) {
+      console.error('[ScheduleFlow] Failed to load coaches:', error);
+      this.error = 'Failed to load available coaches';
+    }
   }
 
   /**
