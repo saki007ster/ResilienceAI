@@ -149,7 +149,8 @@ export class ScheduleFlow implements OnInit, OnDestroy {
    */
   private checkForAuthCallback(): void {
     const url = window.location.href;
-    if (url.includes('/auth/callback') || url.includes('code=')) {
+    // For Implicit Flow, check for access_token in URL fragment
+    if (url.includes('/auth/callback') || url.includes('#access_token=')) {
       console.log('[ScheduleFlow] Processing OAuth callback...');
       this.googleAuth.handleCallback(url).then(success => {
         if (success) {
@@ -507,7 +508,6 @@ export class ScheduleFlow implements OnInit, OnDestroy {
   clearAuthCache(): void {
     console.log('[ScheduleFlow] Clearing authentication cache...');
     localStorage.removeItem('google_tokens');
-    sessionStorage.removeItem('pkce_code_verifier');
     sessionStorage.removeItem('oauth_state');
     console.log('[ScheduleFlow] ✅ Cache cleared');
     

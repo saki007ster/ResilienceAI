@@ -99,7 +99,8 @@ export class GoogleAuth {
           await this.refreshAccessToken();
           console.log('[GoogleAuth] ✅ Authentication restored via token refresh');
         } else {
-          console.log('[GoogleAuth] Tokens invalid and no refresh token available');
+          console.log('[GoogleAuth] Tokens invalid and no refresh token available (Implicit Flow)');
+          console.log('[GoogleAuth] User needs to sign in again');
           this.clearStoredTokens();
         }
       } else {
@@ -117,7 +118,7 @@ export class GoogleAuth {
   }
 
   /**
-   * Start OAuth 2.0 flow with PKCE
+   * Start OAuth 2.0 flow with Implicit Flow (for frontend apps)
    */
   async signIn(): Promise<void> {
     try {
@@ -128,61 +129,62 @@ export class GoogleAuth {
         throw new Error('Google OAuth is not configured. Please set up your Google Cloud Console project and update the client ID.');
       }
 
-      // Generate PKCE parameters
-      this.codeVerifier = this.generateCodeVerifier();
-      const codeChallenge = await this.generateCodeChallenge(this.codeVerifier);
+      // Generate state for security
       const state = this.generateState();
-
-      // Store PKCE parameters
-      sessionStorage.setItem('pkce_code_verifier', this.codeVerifier);
+      
+      // Store state parameter
       sessionStorage.setItem('oauth_state', state);
 
-      // Build authorization URL
+      // Build authorization URL for Implicit Flow
       const authUrl = new URL(this.AUTH_URL);
       authUrl.searchParams.set('client_id', this.CLIENT_ID);
       authUrl.searchParams.set('redirect_uri', this.REDIRECT_URI);
-      authUrl.searchParams.set('response_type', 'code');
+      authUrl.searchParams.set('response_type', 'token'); // Use 'token' instead of 'code' for Implicit Flow
       authUrl.searchParams.set('scope', this.SCOPE);
-      authUrl.searchParams.set('code_challenge', codeChallenge);
-      authUrl.searchParams.set('code_challenge_method', 'S256');
       authUrl.searchParams.set('state', state);
-      authUrl.searchParams.set('access_type', 'offline');
-      authUrl.searchParams.set('prompt', 'consent');
+      authUrl.searchParams.set('include_granted_scopes', 'true');
 
-      console.log('[GoogleAuth] Starting OAuth flow...');
+      console.log('[GoogleAuth] Starting Implicit OAuth flow...');
+      console.log('[GoogleAuth] Redirect URI:', this.REDIRECT_URI);
+
+      // Redirect to Google OAuth
       window.location.href = authUrl.toString();
 
     } catch (error) {
       console.error('[GoogleAuth] Sign-in failed:', error);
       this.updateState({ 
         isLoading: false, 
-        error: 'Failed to start authentication' 
+        error: error instanceof Error ? error.message : 'Sign-in failed' 
       });
     }
   }
 
   /**
-   * Handle OAuth callback from redirect
+   * Handle OAuth callback from redirect (Implicit Flow)
    */
   async handleCallback(url: string): Promise<boolean> {
     try {
       console.log('[GoogleAuth] Handling OAuth callback:', url);
       this.updateState({ isLoading: true, error: undefined });
 
-      const urlParams = new URLSearchParams(new URL(url).search);
-      const code = urlParams.get('code');
-      const state = urlParams.get('state');
-      const error = urlParams.get('error');
+      // For Implicit Flow, tokens are in the fragment (after #), not query params
+      const fragment = new URL(url).hash.substring(1); // Remove the # symbol
+      const params = new URLSearchParams(fragment);
+      
+      const accessToken = params.get('access_token');
+      const expiresIn = params.get('expires_in');
+      const state = params.get('state');
+      const error = params.get('error');
 
       if (error) {
         throw new Error(`OAuth error: ${error}`);
       }
 
-      if (!code || !state) {
-        throw new Error('Missing authorization code or state');
+      if (!accessToken || !state) {
+        throw new Error('Missing access token or state parameter');
       }
 
-      console.log('[GoogleAuth] Authorization code received, verifying state...');
+      console.log('[GoogleAuth] Access token received, verifying state...');
 
       // Verify state parameter
       const storedState = sessionStorage.getItem('oauth_state');
@@ -190,20 +192,23 @@ export class GoogleAuth {
         throw new Error('Invalid state parameter');
       }
 
-      // Exchange code for tokens
-      const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
-      if (!codeVerifier) {
-        throw new Error('Missing code verifier');
-      }
+      // Create token object (Implicit Flow only provides access token, no refresh token)
+      const tokens: GoogleTokens = {
+        access_token: accessToken,
+        token_type: 'Bearer',
+        expires_in: parseInt(expiresIn || '3600'),
+        expires_at: Date.now() + (parseInt(expiresIn || '3600') * 1000),
+        scope: this.SCOPE
+      };
 
-      console.log('[GoogleAuth] Exchanging code for tokens...');
-      await this.exchangeCodeForTokens(code, codeVerifier);
+      console.log('[GoogleAuth] Storing tokens...');
+      this.tokens = tokens;
+      this.storeTokens(tokens);
       
       console.log('[GoogleAuth] Loading user info...');
       await this.loadUserInfo();
 
       // Clean up session storage
-      sessionStorage.removeItem('pkce_code_verifier');
       sessionStorage.removeItem('oauth_state');
 
       console.log('[GoogleAuth] ✅ Authentication successful, redirecting...');
