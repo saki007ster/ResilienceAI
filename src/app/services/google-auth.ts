@@ -83,16 +83,36 @@ export class GoogleAuth {
    */
   private async initializeAuth(): Promise<void> {
     try {
+      console.log('[GoogleAuth] Initializing authentication...');
       const storedTokens = this.getStoredTokens();
-      if (storedTokens && this.isTokenValid(storedTokens)) {
-        this.tokens = storedTokens;
-        await this.loadUserInfo();
-      } else if (storedTokens?.refresh_token) {
-        await this.refreshAccessToken();
+      
+      if (storedTokens) {
+        console.log('[GoogleAuth] Found stored tokens, checking validity...');
+        if (this.isTokenValid(storedTokens)) {
+          console.log('[GoogleAuth] Tokens are valid, loading user info...');
+          this.tokens = storedTokens;
+          await this.loadUserInfo();
+          console.log('[GoogleAuth] ✅ Authentication restored from stored tokens');
+        } else if (storedTokens?.refresh_token) {
+          console.log('[GoogleAuth] Tokens expired, refreshing...');
+          this.tokens = storedTokens;
+          await this.refreshAccessToken();
+          console.log('[GoogleAuth] ✅ Authentication restored via token refresh');
+        } else {
+          console.log('[GoogleAuth] Tokens invalid and no refresh token available');
+          this.clearStoredTokens();
+        }
+      } else {
+        console.log('[GoogleAuth] No stored tokens found');
       }
     } catch (error) {
       console.error('[GoogleAuth] Initialization failed:', error);
       this.clearStoredTokens();
+      this.updateState({ 
+        isAuthenticated: false, 
+        isLoading: false, 
+        error: 'Authentication initialization failed' 
+      });
     }
   }
 
@@ -142,10 +162,11 @@ export class GoogleAuth {
   }
 
   /**
-   * Handle OAuth callback with authorization code
+   * Handle OAuth callback from redirect
    */
   async handleCallback(url: string): Promise<boolean> {
     try {
+      console.log('[GoogleAuth] Handling OAuth callback:', url);
       this.updateState({ isLoading: true, error: undefined });
 
       const urlParams = new URLSearchParams(new URL(url).search);
@@ -161,6 +182,8 @@ export class GoogleAuth {
         throw new Error('Missing authorization code or state');
       }
 
+      console.log('[GoogleAuth] Authorization code received, verifying state...');
+
       // Verify state parameter
       const storedState = sessionStorage.getItem('oauth_state');
       if (state !== storedState) {
@@ -173,14 +196,21 @@ export class GoogleAuth {
         throw new Error('Missing code verifier');
       }
 
+      console.log('[GoogleAuth] Exchanging code for tokens...');
       await this.exchangeCodeForTokens(code, codeVerifier);
+      
+      console.log('[GoogleAuth] Loading user info...');
       await this.loadUserInfo();
 
       // Clean up session storage
       sessionStorage.removeItem('pkce_code_verifier');
       sessionStorage.removeItem('oauth_state');
 
-      console.log('[GoogleAuth] ✅ Authentication successful');
+      console.log('[GoogleAuth] ✅ Authentication successful, redirecting...');
+      
+      // Redirect to schedule page and clean up URL
+      window.history.replaceState({}, document.title, '/schedule');
+      
       return true;
 
     } catch (error) {
@@ -189,6 +219,10 @@ export class GoogleAuth {
         isLoading: false, 
         error: error instanceof Error ? error.message : 'Authentication failed' 
       });
+      
+      // Redirect to schedule page even on error to show error message
+      window.history.replaceState({}, document.title, '/schedule');
+      
       return false;
     }
   }
@@ -229,15 +263,20 @@ export class GoogleAuth {
       throw new Error('No access token available');
     }
 
+    console.log('[GoogleAuth] Fetching user info from Google API...');
     const response = await fetch(this.USERINFO_URL, {
       headers: { Authorization: `Bearer ${this.tokens.access_token}` }
     });
 
     if (!response.ok) {
-      throw new Error('Failed to load user info');
+      const errorText = await response.text();
+      console.error('[GoogleAuth] User info API error:', response.status, errorText);
+      throw new Error(`Failed to load user info: ${response.status}`);
     }
 
     const userInfo = await response.json();
+    console.log('[GoogleAuth] User info received:', { id: userInfo.id, email: userInfo.email, name: userInfo.name });
+    
     const user: GoogleUser = {
       id: userInfo.id,
       email: userInfo.email,
@@ -245,12 +284,15 @@ export class GoogleAuth {
       picture: userInfo.picture
     };
 
+    console.log('[GoogleAuth] Updating authentication state...');
     this.updateState({
       isAuthenticated: true,
       isLoading: false,
       user,
       error: undefined
     });
+    
+    console.log('[GoogleAuth] ✅ User authentication complete');
   }
 
   /**

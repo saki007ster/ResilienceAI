@@ -7,5 +7,7 @@ export const routes: Routes = [
   { path: '', redirectTo: '/chat', pathMatch: 'full' },
   { path: 'chat', component: ChatWindow },
   { path: 'settings', component: SettingsPage },
-  { path: 'schedule', component: ScheduleFlow }
+  { path: 'schedule', component: ScheduleFlow },
+  { path: 'auth/callback', component: ScheduleFlow },
+  { path: '**', redirectTo: '/chat' }
 ];

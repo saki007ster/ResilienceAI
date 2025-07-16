@@ -108,10 +108,18 @@ export class ScheduleFlow implements OnInit, OnDestroy {
     // Subscribe to authentication state
     this.authSubscription = this.googleAuth.state$.subscribe(
       state => {
+        console.log('[ScheduleFlow] Auth state changed:', { 
+          isAuthenticated: state.isAuthenticated, 
+          isLoading: state.isLoading,
+          hasUser: !!state.user,
+          error: state.error 
+        });
+        
         this.authState = state;
         this.updateStepCompletion('auth', state.isAuthenticated);
         
         if (state.isAuthenticated && this.currentStep === 'auth') {
+          console.log('[ScheduleFlow] User authenticated, moving to coach selection');
           this.goToStep('coach');
         }
       }
@@ -142,7 +150,16 @@ export class ScheduleFlow implements OnInit, OnDestroy {
   private checkForAuthCallback(): void {
     const url = window.location.href;
     if (url.includes('/auth/callback') || url.includes('code=')) {
-      this.googleAuth.handleCallback(url);
+      console.log('[ScheduleFlow] Processing OAuth callback...');
+      this.googleAuth.handleCallback(url).then(success => {
+        if (success) {
+          console.log('[ScheduleFlow] OAuth callback successful');
+          // The auth state subscription will handle moving to next step
+        } else {
+          console.log('[ScheduleFlow] OAuth callback failed');
+          // Error will be shown via auth state
+        }
+      });
     }
   }
 
@@ -467,5 +484,20 @@ export class ScheduleFlow implements OnInit, OnDestroy {
     if (this.tempClientId.trim()) {
       this.googleAuth.setClientId(this.tempClientId.trim());
     }
+  }
+
+  /**
+   * Debug authentication state (for troubleshooting)
+   */
+  debugAuth(): void {
+    console.log('=== AUTHENTICATION DEBUG ===');
+    console.log('Current auth state:', this.authState);
+    console.log('Google Auth service configured:', this.googleAuth.isConfigured());
+    console.log('Google Auth service authenticated:', this.googleAuth.isAuthenticated());
+    console.log('localStorage tokens:', localStorage.getItem('google_tokens'));
+    console.log('localStorage client_id:', localStorage.getItem('google_client_id'));
+    console.log('Current URL:', window.location.href);
+    console.log('Current step:', this.currentStep);
+    console.log('================================');
   }
 }

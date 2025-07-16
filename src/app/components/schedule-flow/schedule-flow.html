@@ -40,6 +40,13 @@
     <span>{{ error }}</span>
   </div>
 
+  <!-- Temporary Debug Button -->
+  <div class="debug-section" style="margin-bottom: 1rem; text-align: center;">
+    <button (click)="debugAuth()" style="background: #ff6f00; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+      🐛 Debug Auth State
+    </button>
+  </div>
+
   <!-- Step 1: Authentication -->
   <div *ngIf="currentStep === 'auth'" class="step-content auth-step">
     <div class="step-card">
