@@ -500,4 +500,31 @@ export class ScheduleFlow implements OnInit, OnDestroy {
     console.log('Current step:', this.currentStep);
     console.log('================================');
   }
+
+  /**
+   * Clear authentication cache and stored data
+   */
+  clearAuthCache(): void {
+    console.log('[ScheduleFlow] Clearing authentication cache...');
+    localStorage.removeItem('google_tokens');
+    sessionStorage.removeItem('pkce_code_verifier');
+    sessionStorage.removeItem('oauth_state');
+    console.log('[ScheduleFlow] ✅ Cache cleared');
+    
+    // Reset component state
+    this.currentStep = 'auth';
+    this.selectedCoach = undefined;
+    this.selectedDate = undefined;
+    this.selectedTimeSlot = undefined;
+    this.sessionTopic = '';
+    this.scheduledEvent = undefined;
+    this.error = undefined;
+    
+    // Reset step completion
+    this.steps.forEach(step => {
+      step.completed = false;
+    });
+    
+    alert('Authentication cache cleared! You can now try logging in with the new Client ID.');
+  }
 }
