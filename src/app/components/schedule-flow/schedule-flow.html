@@ -1,10 +1,359 @@
 <div class="schedule-flow">
-  <h2>Schedule a Session</h2>
-  <p>Book a meeting with a human wellness coach</p>
-  <div class="schedule-placeholder">
-    <p>📅 Google Calendar integration</p>
-    <p>👨‍⚕️ Choose available coach</p>
-    <p>⏰ Select time and date</p>
-    <p>📱 Works offline with sync</p>
+  
+  <!-- Header -->
+  <div class="schedule-header">
+    <h2>🗓️ Schedule a Coach Session</h2>
+    <p>Connect with a human wellness expert for personalized support</p>
+    
+    <!-- Progress bar -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+      </div>
+      <div class="progress-text">{{ progressPercentage }}% Complete</div>
+    </div>
   </div>
+
+  <!-- Step indicator -->
+  <div class="step-indicator">
+    <div class="steps">
+      <div 
+        *ngFor="let step of steps; let i = index" 
+        class="step"
+        [class.active]="step.id === currentStep"
+        [class.completed]="step.completed">
+        <div class="step-number">
+          <span *ngIf="!step.completed">{{ i + 1 }}</span>
+          <span *ngIf="step.completed" class="checkmark">✓</span>
+        </div>
+        <div class="step-info">
+          <div class="step-title">{{ step.title }}</div>
+          <div class="step-description">{{ step.description }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="error-message">
+    <span class="error-icon">⚠️</span>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- Step 1: Authentication -->
+  <div *ngIf="currentStep === 'auth'" class="step-content auth-step">
+    <div class="step-card">
+      <div class="step-icon">🔐</div>
+      <h3>Connect Your Google Calendar</h3>
+      <p>Sign in with Google to access your calendar and schedule appointments with our wellness coaches.</p>
+      
+      <div class="auth-features">
+        <div class="feature">
+          <span class="feature-icon">🔒</span>
+          <span>Secure OAuth 2.0 authentication</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">📅</span>
+          <span>Direct calendar integration</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">🔄</span>
+          <span>Automatic sync and reminders</span>
+        </div>
+      </div>
+
+      <div class="auth-actions">
+        <button 
+          *ngIf="!authState.isAuthenticated && !authState.isLoading"
+          class="google-signin-btn"
+          (click)="signInWithGoogle()">
+          <span class="google-icon">G</span>
+          Sign in with Google
+        </button>
+        
+        <div *ngIf="authState.isLoading" class="loading-state">
+          <div class="spinner"></div>
+          <span>Connecting to Google...</span>
+        </div>
+        
+        <div *ngIf="authState.isAuthenticated && currentUser" class="authenticated-state">
+          <div class="user-info">
+            <img *ngIf="currentUser.picture" [src]="currentUser.picture" [alt]="currentUser.name" class="user-avatar">
+            <div>
+              <div class="user-name">{{ currentUser.name }}</div>
+              <div class="user-email">{{ currentUser.email }}</div>
+            </div>
+          </div>
+          <button class="secondary-btn" (click)="signOut()">Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Coach Selection -->
+  <div *ngIf="currentStep === 'coach'" class="step-content coach-step">
+    <div class="step-card">
+      <div class="step-icon">👨‍⚕️</div>
+      <h3>Choose Your Wellness Coach</h3>
+      <p>Select a coach based on their specialties and expertise areas.</p>
+      
+      <div class="coaches-grid">
+        <div 
+          *ngFor="let coach of calendarState.availability" 
+          class="coach-card"
+          [class.selected]="selectedCoach?.coachId === coach.coachId"
+          (click)="selectCoach(coach)">
+          
+          <div class="coach-avatar">
+            {{ getInitials(coach.coachName) }}
+          </div>
+          
+          <div class="coach-info">
+            <h4>{{ coach.coachName }}</h4>
+            <div class="coach-specialties">
+              <span *ngFor="let specialty of coach.specialties" class="specialty-tag">
+                {{ specialty }}
+              </span>
+            </div>
+            <div class="coach-location">
+              <span class="location-icon">📍</span>
+              {{ coach.location }}
+            </div>
+          </div>
+          
+          <div class="select-indicator">
+            <span class="checkmark">✓</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step-actions">
+        <button class="secondary-btn" (click)="goBack()">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Date Selection -->
+  <div *ngIf="currentStep === 'date'" class="step-content date-step">
+    <div class="step-card">
+      <div class="step-icon">📅</div>
+      <h3>Pick Your Preferred Date</h3>
+      <p>Choose a date for your session with {{ selectedCoach?.coachName }}.</p>
+      
+      <div class="calendar-container">
+        <div class="calendar-grid">
+          <div 
+            *ngFor="let date of availableDates.slice(0, 14)" 
+            class="date-option"
+            [class.selected]="selectedDate?.toDateString() === date.toDateString()"
+            (click)="selectDate(date)">
+            
+            <div class="date-day">{{ formatDate(date).split(',')[0] }}</div>
+            <div class="date-number">{{ date.getDate() }}</div>
+            <div class="date-month">{{ date.toLocaleDateString('en-US', { month: 'short' }) }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step-actions">
+        <button class="secondary-btn" (click)="goBack()">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Time Selection -->
+  <div *ngIf="currentStep === 'time'" class="step-content time-step">
+    <div class="step-card">
+      <div class="step-icon">⏰</div>
+      <h3>Select Your Time</h3>
+      <p>Available time slots for {{ formatDate(selectedDate!) }} with {{ selectedCoach?.coachName }}.</p>
+      
+      <div *ngIf="calendarState.isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <span>Loading available times...</span>
+      </div>
+      
+      <div *ngIf="!calendarState.isLoading" class="time-slots">
+        <div 
+          *ngFor="let slot of availableTimeSlots" 
+          class="time-slot"
+          [class.selected]="selectedTimeSlot === slot"
+          (click)="selectTimeSlot(slot)">
+          
+          <div class="slot-time">
+            {{ formatTime(slot.start) }} - {{ formatTime(slot.end) }}
+          </div>
+          <div class="slot-duration">60 minutes</div>
+        </div>
+        
+        <div *ngIf="availableTimeSlots.length === 0" class="no-slots">
+          <span class="no-slots-icon">😔</span>
+          <p>No available time slots for this date.</p>
+          <button class="secondary-btn" (click)="goToStep('date')">Choose Different Date</button>
+        </div>
+      </div>
+      
+      <div class="step-actions">
+        <button class="secondary-btn" (click)="goBack()">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5: Topic Selection -->
+  <div *ngIf="currentStep === 'topic'" class="step-content topic-step">
+    <div class="step-card">
+      <div class="step-icon">💭</div>
+      <h3>What Would You Like to Discuss?</h3>
+      <p>Help your coach prepare by sharing what you'd like to focus on (optional).</p>
+      
+      <div class="topic-input">
+        <textarea 
+          [(ngModel)]="sessionTopic"
+          placeholder="e.g., Managing work stress, improving sleep habits, relationship concerns..."
+          class="topic-textarea"
+          rows="4">
+        </textarea>
+      </div>
+      
+      <div class="topic-suggestions">
+        <h4>Popular Topics:</h4>
+        <div class="suggestions-grid">
+          <button 
+            *ngFor="let suggestion of ['Anxiety Management', 'Stress Reduction', 'Work-Life Balance', 'Goal Setting', 'Self-Esteem', 'Sleep Issues']"
+            class="suggestion-btn"
+            (click)="sessionTopic = suggestion">
+            {{ suggestion }}
+          </button>
+        </div>
+      </div>
+      
+      <div class="step-actions">
+        <button class="secondary-btn" (click)="goBack()">← Back</button>
+        <button class="primary-btn" (click)="setSessionTopic()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6: Confirmation -->
+  <div *ngIf="currentStep === 'confirm'" class="step-content confirm-step">
+    <div class="step-card">
+      <div class="step-icon">✅</div>
+      <h3>Confirm Your Appointment</h3>
+      <p>Please review your session details before booking.</p>
+      
+      <div class="booking-summary">
+        <div class="summary-section">
+          <h4>Coach</h4>
+          <div class="coach-summary">
+            <div class="coach-avatar-small">
+              {{ getInitialsSafe(selectedCoach?.coachName) }}
+            </div>
+            <div>
+              <div class="coach-name">{{ selectedCoach?.coachName }}</div>
+              <div class="coach-specialties-small">{{ joinArraySafe(selectedCoach?.specialties) }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="summary-section">
+          <h4>Date & Time</h4>
+          <div class="datetime-summary">
+            <div class="summary-date">{{ formatDate(selectedDate!) }}</div>
+            <div class="summary-time">{{ formatTime(selectedTimeSlot!.start) }} - {{ formatTime(selectedTimeSlot!.end) }}</div>
+            <div class="summary-location">📍 {{ selectedCoach?.location }}</div>
+          </div>
+        </div>
+        
+        <div *ngIf="sessionTopic" class="summary-section">
+          <h4>Session Focus</h4>
+          <div class="summary-topic">{{ sessionTopic }}</div>
+        </div>
+        
+        <div class="summary-section">
+          <h4>Your Details</h4>
+          <div class="user-summary">
+            <div>{{ currentUser?.name }}</div>
+            <div>{{ currentUser?.email }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="booking-notes">
+        <h4>Important Notes:</h4>
+        <ul>
+          <li>A calendar invitation will be sent to both you and your coach</li>
+          <li>Please join the video call 5 minutes before the session</li>
+          <li>If you need to reschedule, please do so at least 24 hours in advance</li>
+        </ul>
+      </div>
+      
+      <div class="step-actions">
+        <button class="secondary-btn" (click)="goBack()">← Back</button>
+        <button 
+          class="primary-btn"
+          [disabled]="isScheduling"
+          (click)="scheduleAppointment()">
+          <span *ngIf="!isScheduling">Book Session</span>
+          <span *ngIf="isScheduling">
+            <div class="spinner small"></div>
+            Scheduling...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 7: Completion -->
+  <div *ngIf="currentStep === 'complete'" class="step-content complete-step">
+    <div class="step-card success">
+      <div class="step-icon success-icon">🎉</div>
+      <h3>Session Booked Successfully!</h3>
+      <p>Your wellness coaching session has been scheduled and added to your calendar.</p>
+      
+      <div class="success-details">
+        <div class="success-summary">
+          <h4>Session Details:</h4>
+          <div class="detail-row">
+            <span class="detail-label">Coach:</span>
+            <span>{{ selectedCoach?.coachName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Date:</span>
+            <span>{{ formatDate(selectedDate!) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Time:</span>
+            <span>{{ formatTime(selectedTimeSlot!.start) }} - {{ formatTime(selectedTimeSlot!.end) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Location:</span>
+            <span>{{ selectedCoach?.location }}</span>
+          </div>
+        </div>
+        
+        <div class="next-steps">
+          <h4>What's Next:</h4>
+          <ul>
+            <li>✅ Calendar invitation sent to your email</li>
+            <li>📧 Confirmation email with session details</li>
+            <li>⏰ Automatic reminders before your session</li>
+            <li>💻 Video call link included in calendar event</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="success-actions">
+        <button 
+          *ngIf="scheduledEvent?.htmlLink"
+          class="primary-btn"
+          (click)="openInGoogleCalendarSafe(scheduledEvent?.htmlLink)">
+          📅 View in Google Calendar
+        </button>
+        <button class="secondary-btn" (click)="resetSchedulingFlow()">
+          Schedule Another Session
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>
