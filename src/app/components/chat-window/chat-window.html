@@ -2,37 +2,41 @@
   
   <!-- Header -->
   <header class="chat-header" role="banner">
-    <div class="header-info" aria-label="Resilience AI Coach header">
-      <h2>🧠 Resilience AI Coach</h2>
-      <p>Your private, offline wellness companion</p>
-    </div>
-    
-    <div class="status-indicators">
-      <div class="status-item" [class.active]="isModelReady">
-        <span class="status-dot"></span>
-        <span role="status" aria-live="polite">{{ isModelReady ? 'Model Ready' : 'Model Not Ready' }}</span>
+    <div class="container">
+      <div class="header-info" aria-label="Resilience AI Coach header">
+        <h2>🧠 Resilience AI Coach</h2>
+        <p>Your private, offline wellness companion</p>
       </div>
       
-      <div class="status-item" [class.active]="isChatReady && isModelReady">
-        <span class="status-dot"></span>
-        <span role="status" aria-live="polite">{{ isChatReady && isModelReady ? aiDevice : 'AI Initializing' }}</span>
-      </div>
+      <div class="status-indicators">
+        <div class="status-item" [class.active]="isModelReady">
+          <span class="status-dot"></span>
+          <span role="status" aria-live="polite">{{ isModelReady ? 'Model Ready' : 'Model Not Ready' }}</span>
+        </div>
+        
+        <div class="status-item" [class.active]="isChatReady && isModelReady">
+          <span class="status-dot"></span>
+          <span role="status" aria-live="polite">{{ isChatReady && isModelReady ? aiDevice : 'AI Initializing' }}</span>
+        </div>
 
-      <div class="status-item" [class.active]="headTts.isSupported()">
-        <span class="status-dot"></span>
-        <span role="status" aria-live="polite">{{ headTts.isSupported() ? 'TTS Ready' : 'TTS Not Available' }}</span>
+        <div class="status-item" [class.active]="headTts.isSupported()">
+          <span class="status-dot"></span>
+          <span role="status" aria-live="polite">{{ headTts.isSupported() ? 'TTS Ready' : 'TTS Not Available' }}</span>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- Model Selector Section (shown when no model is loaded) -->
   <div *ngIf="showModelSelector" class="model-selector-section">
-    <div class="card fade-in">
+    <div class="container">
       <app-model-selector
         [availableModels]="availableModels"
-        [currentModel]="aiState.currentModel"
+        [currentModel]="aiState.currentModel || null"
         [isLoading]="aiState.isLoading"
         [isInitialized]="aiState.isInitialized"
+        [progress]="aiState.progress"
+        [progressText]="aiState.progressText"
         (modelSelected)="onModelSelected($event)"
         (initializeTriggered)="onInitializeTriggered()">
       </app-model-selector>
@@ -41,7 +45,8 @@
 
   <!-- Main Chat Interface (shown when model is ready) -->
   <div *ngIf="!showModelSelector" class="chat-interface">
-    <div class="card fade-in chat-main-content">
+    <div class="container">
+      <div class="card fade-in chat-main-content">
       <!-- Avatar and Chat Side-by-Side Layout -->
       <div class="avatar-section" *ngIf="avatarEnabled">
         <app-avatar 
@@ -178,22 +183,23 @@
         <span class="status-text">⏳ Waiting for AI model to initialize...</span>
       </div>
     </div>
-  </div>
-  
-  <!-- Debug Info (only in development) -->
-  <div class="debug-info" *ngIf="false">
-    <details>
-      <summary>🔧 Debug Information</summary>
-      <div class="debug-content">
-        <h4>AI State:</h4>
-        <pre>{{ aiState | json }}</pre>
-        
-        <h4>TTS State:</h4>
-        <pre>{{ ttsState | json }}</pre>
-        
-        <h4>TTS Info:</h4>
-        <pre>{{ getTTSInfo() | json }}</pre>
+      
+      <!-- Debug Info (only in development) -->
+      <div class="debug-info" *ngIf="false">
+        <details>
+          <summary>🔧 Debug Information</summary>
+          <div class="debug-content">
+            <h4>AI State:</h4>
+            <pre>{{ aiState | json }}</pre>
+            
+            <h4>TTS State:</h4>
+            <pre>{{ ttsState | json }}</pre>
+            
+            <h4>TTS Info:</h4>
+            <pre>{{ getTTSInfo() | json }}</pre>
+          </div>
+        </details>
       </div>
-    </details>
+    </div>
   </div>
 </div>

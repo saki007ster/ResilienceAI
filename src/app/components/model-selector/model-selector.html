@@ -1,17 +1,21 @@
-<div class="card fade-in model-selector-container" aria-label="AI Model Selector">
+<div class="model-selector-container fade-in" aria-label="AI Model Selector">
   <div class="selector-header">
-    <h3>🧠 Choose Your AI Model</h3>
-    <p>Select the language model that best fits your needs</p>
+    <h3><span class="header-icon">💬</span> Choose Your AI Model</h3>
+    <p class="text-muted">Select the language model that best fits your needs</p>
   </div>
 
   <div class="models-grid">
     <div
       *ngFor="let model of availableModels"
-      class="card model-card"
+      class="model-card"
+      tabindex="0"
+      role="radio"
+      [attr.aria-checked]="selectedModelId === model.id"
       [class.selected]="selectedModelId === model.id"
       [class.current]="currentModel === model.id"
       [class.disabled]="isLoading"
-      (click)="onModelChange(model.id)">
+      (click)="onModelChange(model.id)"
+      (keydown.enter)="onModelChange(model.id)">
       
       <div class="model-header">
         <div class="model-info">
@@ -34,9 +38,15 @@
       <p class="model-description">{{ model.description }}</p>
 
       <div class="model-footer">
-        <div class="selection-indicator">
-          <span *ngIf="selectedModelId === model.id" class="selected-indicator">●</span>
-          <span *ngIf="selectedModelId !== model.id" class="unselected-indicator">○</span>
+        <div *ngIf="isLoading && selectedModelId === model.id" class="progress-container">
+          <div class="progress-text">{{ progressText }}</div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="progress"></div>
+          </div>
+        </div>
+        
+        <div *ngIf="!(isLoading && selectedModelId === model.id)" class="selection-indicator">
+          <div class="radio-button"></div>
         </div>
       </div>
     </div>
@@ -71,19 +81,19 @@
       </span>
     </button>
   </div>
+</div>
 
-  <div class="selector-notes">
-    <div class="note-item">
-      <span class="note-icon">💡</span>
-      <span class="note-text">Larger models provide better responses but require more memory and longer download times</span>
-    </div>
-    <div class="note-item">
-      <span class="note-icon">🔒</span>
-      <span class="note-text">All models run locally in your browser - your conversations remain private</span>
-    </div>
-    <div class="note-item">
-      <span class="note-icon">⚡</span>
-      <span class="note-text">Models with WebGPU support will run faster on compatible devices</span>
-    </div>
+<div class="selector-notes card fade-in">
+  <div class="note-item">
+    <span class="note-icon">💡</span>
+    <span class="note-text">Larger models provide better responses but require more memory and longer download times</span>
+  </div>
+  <div class="note-item">
+    <span class="note-icon">🔒</span>
+    <span class="note-text">All models run locally in your browser - your conversations remain private</span>
+  </div>
+  <div class="note-item">
+    <span class="note-icon">⚡</span>
+    <span class="note-text">Models with WebGPU support will run faster on compatible devices</span>
   </div>
 </div> 

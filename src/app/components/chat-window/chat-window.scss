@@ -6,15 +6,37 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
+/* Consistent Container */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  width: 100%;
+  
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+  }
+}
+
 /* Header */
 .chat-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
   background: #fff;
   border-bottom: 1px solid var(--color-border);
   box-shadow: 0 2px 8px rgba(30, 41, 59, 0.04);
+  
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
+      align-items: flex-start;
+    }
+  }
 
   .header-info {
     h2 {
@@ -23,18 +45,32 @@
       font-size: 1.5rem;
       font-weight: 700;
       letter-spacing: -0.5px;
+      
+      @media (max-width: 768px) {
+        font-size: 1.2rem;
+      }
     }
 
     p {
       margin: 0.25rem 0 0 0;
       color: #444;
       font-size: 0.95rem;
+      
+      @media (max-width: 768px) {
+        font-size: 0.85rem;
+        display: none;
+      }
     }
   }
 
   .status-indicators {
     display: flex;
     gap: 1rem;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
 
     .status-item {
       display: flex;
@@ -48,6 +84,13 @@
       border: 1px solid var(--color-border);
       transition: all 0.3s ease;
       outline: none;
+      
+      @media (max-width: 768px) {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        justify-content: center;
+        min-width: 0;
+      }
 
       &.active {
         background: #e0fbe0;
@@ -82,10 +125,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
   background: transparent;
   backdrop-filter: none;
   margin-top: 2rem;
+  
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    
+    @media (max-width: 768px) {
+      padding: 1rem;
+    }
+  }
 }
 
 /* Chat Interface */
@@ -94,6 +147,13 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 80px); // Account for header
+  
+  .container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.5rem;
+  }
 }
 
 .chat-main-content {
@@ -157,10 +217,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 /* Chat Messages */
@@ -262,9 +321,9 @@
     justify-content: flex-end;
 
     .message-bubble {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      border-bottom-right-radius: 8px;
+      background: var(--color-primary);
+      color: white;
+      border-bottom-right-radius: 4px;
     }
   }
 
@@ -272,20 +331,21 @@
     justify-content: flex-start;
 
     .message-bubble {
-      background: rgba(247, 248, 252, 0.9);
-      color: #333;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-bottom-left-radius: 8px;
+      background: #ffffff;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      border-bottom-left-radius: 4px;
     }
   }
 }
 
 .message-bubble {
-  max-width: 70%;
-  padding: 1rem 1.25rem;
-  border-radius: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  max-width: 80%;
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(30, 41, 59, 0.05);
+  transition: all var(--transition);
+  animation: fadeIn 0.5s ease;
 
   &:hover {
     transform: translateY(-1px);
@@ -377,9 +437,9 @@
 
 /* Chat Input */
 .chat-input-section {
-  padding: 1rem 1.5rem;
-  background: rgba(255, 255, 255, 0.95);
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  background: transparent;
+  border-top: 1px solid var(--color-border);
 
   .input-container {
     display: flex;
@@ -389,18 +449,19 @@
     .message-input {
       flex: 1;
       padding: 0.75rem 1rem;
-      border: 2px solid rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
+      border: 2px solid transparent;
+      border-radius: var(--radius);
       font-size: 1rem;
       font-family: inherit;
       resize: none;
       outline: none;
       transition: all 0.3s ease;
-      background: #fff;
+      background: #f5f7fa;
 
       &:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: white;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-focus);
       }
 
       &:disabled {
@@ -418,7 +479,7 @@
       background: linear-gradient(135deg, #667eea, #764ba2);
       color: #fff;
       border: none;
-      border-radius: 12px;
+      border-radius: 99px;
       font-size: 1.1rem;
       font-weight: 500;
       cursor: pointer;

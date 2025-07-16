@@ -12,9 +12,11 @@ import { ModelOption } from '../../services/ai-coach-enhanced.service';
 })
 export class ModelSelector {
   @Input() availableModels: ModelOption[] = [];
-  @Input() currentModel: string | undefined;
+  @Input() currentModel: string | null = null;
   @Input() isLoading: boolean = false;
   @Input() isInitialized: boolean = false;
+  @Input() progress: number = 0;
+  @Input() progressText: string = '';
   
   @Output() modelSelected = new EventEmitter<string>();
   @Output() initializeTriggered = new EventEmitter<void>();

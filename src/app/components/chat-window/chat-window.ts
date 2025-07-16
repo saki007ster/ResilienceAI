@@ -22,7 +22,10 @@ export class ChatWindow implements OnInit, OnDestroy {
     isInitialized: false,
     isLoading: false,
     modelLoaded: false,
-    device: 'unknown'
+    device: 'unknown',
+    currentModel: null,
+    progress: 0,
+    progressText: ''
   };
 
   // TTS and Avatar state

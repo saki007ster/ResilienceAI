@@ -18,6 +18,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 2rem;
+  
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+    height: 56px;
+  }
 }
 
 .nav-brand h1 {
@@ -26,11 +31,19 @@
   font-weight: 700;
   letter-spacing: -0.5px;
   color: var(--color-primary);
+  
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
 }
 
 .nav-links {
   display: flex;
   gap: 1.5rem;
+  
+  @media (max-width: 768px) {
+    gap: 0.5rem;
+  }
 }
 
 .nav-links a {
@@ -44,6 +57,11 @@
   font-size: 1.05rem;
   display: flex;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
 }
 
 .nav-links a.active,

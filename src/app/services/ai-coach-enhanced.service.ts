@@ -14,7 +14,9 @@ export interface AiCoachState {
   isLoading: boolean;
   modelLoaded: boolean;
   device: 'webgpu' | 'wasm' | 'unknown';
-  currentModel?: string;
+  currentModel: string | null;
+  progress: number;
+  progressText: string;
   error?: string;
 }
 
@@ -37,7 +39,10 @@ export class AiCoachEnhancedService {
     isInitialized: false,
     isLoading: false,
     modelLoaded: false,
-    device: 'unknown'
+    device: 'unknown',
+    currentModel: null,
+    progress: 0,
+    progressText: ''
   });
 
   public state$ = this.stateSubject.asObservable();
@@ -105,7 +110,13 @@ export class AiCoachEnhancedService {
       
       // Set up progress callback
       this.engine.setInitProgressCallback((progress: any) => {
-        console.log(`[AiCoachEnhanced] Loading progress: ${(progress.progress * 100).toFixed(1)}%`);
+        const progressPercentage = (progress.progress * 100).toFixed(1);
+        const progressText = progress.text;
+        console.log(`[AiCoachEnhanced] Loading progress: ${progressText} (${progressPercentage}%)`);
+        this.updateState({ 
+          progress: progress.progress * 100, 
+          progressText: progressText 
+        });
       });
 
       console.log(`[AiCoachEnhanced] Loading model: ${selectedModel}`);
