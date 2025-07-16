@@ -1,0 +1,132 @@
+<div class="vrm-avatar-container" [class.hidden]="!isVisible">
+  <!-- Main 3D Avatar Container -->
+  <div #avatarContainer class="avatar-3d-container" [style.width.px]="size" [style.height.px]="size">
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading Avatar...</p>
+    </div>
+
+    <!-- Error Overlay -->
+    <div class="error-overlay" *ngIf="loadError && !isLoading">
+      <div class="error-icon">⚠️</div>
+      <p class="error-text">Failed to load avatar</p>
+      <button class="retry-btn" (click)="loadVRMAvatar()">Retry</button>
+    </div>
+  </div>
+
+  <!-- Avatar Status -->
+  <div class="avatar-status" *ngIf="!isLoading && !loadError">
+    <div class="status-indicator" [class.speaking]="isSpeaking">
+      <div class="pulse-dot" *ngIf="isSpeaking"></div>
+      <span class="status-text">
+        {{ isSpeaking ? 'Speaking' : 'Listening' }}
+      </span>
+    </div>
+
+    <!-- Speaking Waves Animation -->
+    <div class="audio-waves" *ngIf="isSpeaking">
+      <div class="wave"></div>
+      <div class="wave"></div>
+      <div class="wave"></div>
+      <div class="wave"></div>
+    </div>
+  </div>
+
+  <!-- Expression Controls -->
+  <div class="expression-controls" *ngIf="!isSpeaking && !isLoading && !loadError">
+    <button 
+      class="expression-btn happy" 
+      (click)="triggerEmotion('happy')"
+      title="Happy Expression">
+      😊
+    </button>
+    <button 
+      class="expression-btn sad" 
+      (click)="triggerEmotion('sad')"
+      title="Sad Expression">
+      😢
+    </button>
+    <button 
+      class="expression-btn surprised" 
+      (click)="triggerEmotion('surprised')"
+      title="Surprised Expression">
+      😯
+    </button>
+    <button 
+      class="expression-btn angry" 
+      (click)="triggerEmotion('angry')"
+      title="Angry Expression">
+      😠
+    </button>
+    <button 
+      class="expression-btn neutral" 
+      (click)="triggerEmotion('neutral')"
+      title="Neutral Expression">
+      😐
+    </button>
+  </div>
+
+  <!-- Avatar Controls -->
+  <div class="avatar-controls" *ngIf="!isLoading && !loadError">
+    <button 
+      class="control-btn test-btn" 
+      *ngIf="!isSpeaking" 
+      (click)="speak('Hello! I am your wellness coach. How are you feeling today?')"
+      title="Test Voice">
+      🎤 Test Voice
+    </button>
+    
+    <button 
+      class="control-btn pause-btn" 
+      *ngIf="isSpeaking" 
+      (click)="pauseSpeaking()"
+      title="Pause Speech">
+      ⏸️ Pause
+    </button>
+    
+    <button 
+      class="control-btn stop-btn" 
+      *ngIf="isSpeaking" 
+      (click)="stopSpeaking()"
+      title="Stop Speech">
+      ⏹️ Stop
+    </button>
+  </div>
+
+  <!-- Avatar Info Panel -->
+  <div class="avatar-info" *ngIf="!isLoading && !loadError">
+    <div class="info-section">
+      <div class="info-item">
+        <span class="info-label">Status:</span>
+        <span class="info-value" [class.active]="isSpeaking">
+          {{ isSpeaking ? 'Speaking' : 'Listening' }}
+        </span>
+      </div>
+      <div class="info-item" *ngIf="currentViseme !== 'sil'">
+        <span class="info-label">Lip Sync:</span>
+        <span class="info-value active">{{ currentViseme }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Avatar:</span>
+        <span class="info-value">VRM Model</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Avatar Customization (Future Enhancement) -->
+  <div class="avatar-customization" *ngIf="false">
+    <h4>Choose Avatar</h4>
+    <div class="avatar-options">
+      <button class="avatar-option" (click)="changeAvatar('/assets/avatars/female1.vrm')">
+        👩 Female 1
+      </button>
+      <button class="avatar-option" (click)="changeAvatar('/assets/avatars/male1.vrm')">
+        👨 Male 1
+      </button>
+      <button class="avatar-option" (click)="changeAvatar('/assets/avatars/anime1.vrm')">
+        🎭 Anime
+      </button>
+    </div>
+  </div>
+</div> 

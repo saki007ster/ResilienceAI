@@ -1,0 +1,10 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" fill="#F0FDF4" rx="12"/>
+  <circle cx="60" cy="45" r="18" fill="#22C55E"/>
+  <path d="M30 95C35 85 85 85 90 95C95 105 25 105 30 95Z" fill="#22C55E"/>
+  <circle cx="55" cy="40" r="2" fill="#F0FDF4"/>
+  <circle cx="65" cy="40" r="2" fill="#F0FDF4"/>
+  <path d="M54 50C58 53 62 53 66 50" stroke="#F0FDF4" stroke-width="2" stroke-linecap="round"/>
+  <rect x="45" y="30" width="30" height="3" fill="#F0FDF4" rx="1"/>
+  <text x="60" y="110" text-anchor="middle" fill="#15803D" font-family="system-ui, sans-serif" font-size="8" font-weight="600">Therapist</text>
+</svg> 

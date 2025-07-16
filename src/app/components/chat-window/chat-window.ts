@@ -4,13 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { AiCoachEnhancedService as AiCoachService, ConversationMessage, AiCoachState, ModelOption } from '../../services/ai-coach-enhanced.service';
 import { HeadTts, TTSState } from '../../services/head-tts';
-import { Avatar } from '../avatar/avatar';
+import { SpeechRecognitionService, SpeechRecognitionState } from '../../services/speech-recognition.service';
+import { VrmAvatar } from '../vrm-avatar/vrm-avatar';
+import { AvatarSelector } from '../avatar-selector/avatar-selector';
 import { ModelSelector } from '../model-selector/model-selector';
 
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [CommonModule, FormsModule, Avatar, ModelSelector],
+  imports: [CommonModule, FormsModule, VrmAvatar, AvatarSelector, ModelSelector],
   templateUrl: './chat-window.html',
   styleUrl: './chat-window.scss'
 })
@@ -25,7 +27,9 @@ export class ChatWindow implements OnInit, OnDestroy {
     device: 'unknown',
     currentModel: null,
     progress: 0,
-    progressText: ''
+    progressText: '',
+    modelCached: false,
+    cacheSize: 0
   };
 
   // TTS and Avatar state
@@ -39,16 +43,31 @@ export class ChatWindow implements OnInit, OnDestroy {
   avatarEnabled = true;
   autoSpeakReplies = true;
 
+  // Speech Recognition state
+  speechState: SpeechRecognitionState = {
+    isListening: false,
+    isSupported: false,
+    interimTranscript: '',
+    finalTranscript: '',
+    confidence: 0
+  };
+
   // Enhanced LLM properties
   showModelSelector = false;
   availableModels: ModelOption[] = [];
 
+  // Avatar properties
+  currentAvatarUrl = '/assets/avatars/default.vrm';
+  currentAvatarId = 'default';
+
   private aiStateSubscription?: Subscription;
   private ttsStateSubscription?: Subscription;
+  private speechStateSubscription?: Subscription;
 
   constructor(
     private aiCoachService: AiCoachService,
-    public headTts: HeadTts
+    public headTts: HeadTts,
+    public speechRecognition: SpeechRecognitionService
   ) {}
 
   ngOnInit() {
@@ -71,16 +90,41 @@ export class ChatWindow implements OnInit, OnDestroy {
       }
     );
 
+    // Subscribe to Speech Recognition state changes
+    this.speechStateSubscription = this.speechRecognition.state$.subscribe(
+      state => {
+        this.speechState = state;
+        
+        // Auto-populate input with final transcript
+        if (state.finalTranscript && !this.isGenerating) {
+          this.userInput = state.finalTranscript.trim();
+          this.speechRecognition.clearTranscript();
+          
+          // Auto-send if we have a complete sentence
+          if (this.userInput.length > 0 && !state.isListening) {
+            // Small delay to allow user to review before sending
+            setTimeout(() => {
+              if (this.userInput.trim()) {
+                this.sendMessage();
+              }
+            }, 1000);
+          }
+        }
+      }
+    );
+
     // Update messages initially
     this.updateMessages();
 
     console.log('ChatWindow: Initialized with HeadTTS support:', this.headTts.isSupported());
+    console.log('ChatWindow: Initialized with Speech Recognition support:', this.speechRecognition.isSupported());
     console.log('ChatWindow: Available models:', this.availableModels.length);
   }
 
   ngOnDestroy() {
     this.aiStateSubscription?.unsubscribe();
     this.ttsStateSubscription?.unsubscribe();
+    this.speechStateSubscription?.unsubscribe();
   }
 
   /**
@@ -283,5 +327,114 @@ export class ChatWindow implements OnInit, OnDestroy {
     } else {
       console.warn('ChatWindow: No available models to initialize');
     }
+  }
+
+  // Avatar management methods
+  onAvatarSelected(avatar: any): void {
+    this.currentAvatarUrl = avatar.vrmUrl;
+    this.currentAvatarId = avatar.id;
+    console.log('Avatar selected:', avatar);
+  }
+
+  onCustomAvatarUploaded(blobUrl: string): void {
+    this.currentAvatarUrl = blobUrl;
+    this.currentAvatarId = 'custom';
+    console.log('Custom avatar uploaded:', blobUrl);
+  }
+
+  // Get responsive avatar size based on screen width
+  getAvatarSize(): number {
+    if (typeof window === 'undefined') return 240; // SSR fallback
+    
+    const screenWidth = window.innerWidth;
+    
+    if (screenWidth <= 350) return 160;      // Very small mobile
+    if (screenWidth <= 568) return 180;      // Mobile portrait
+    if (screenWidth <= 768) return 200;      // Mobile landscape
+    if (screenWidth <= 1024) return 220;     // Tablet
+    if (screenWidth <= 1400) return 240;     // Desktop
+    return 280;                              // Large desktop
+  }
+
+  /**
+   * Clear all cached models
+   */
+  async onClearCache(): Promise<void> {
+    try {
+      await this.aiCoachService.clearModelCache();
+      console.log('[ChatWindow] Model cache cleared successfully');
+    } catch (error) {
+      console.error('[ChatWindow] Error clearing cache:', error);
+    }
+  }
+
+  // Speech Recognition Methods
+  /**
+   * Toggle microphone listening
+   */
+  toggleMicrophone(): void {
+    if (!this.speechRecognition.isSupported()) {
+      console.warn('[ChatWindow] Speech recognition not supported');
+      return;
+    }
+
+    this.speechRecognition.toggleListening();
+  }
+
+  /**
+   * Start listening for voice input
+   */
+  startListening(): void {
+    if (!this.speechRecognition.isSupported()) {
+      console.warn('[ChatWindow] Speech recognition not supported');
+      return;
+    }
+
+    // Stop TTS if speaking
+    if (this.ttsState.isSpeaking) {
+      this.headTts.stop();
+    }
+
+    this.speechRecognition.startListening();
+  }
+
+  /**
+   * Stop listening for voice input
+   */
+  stopListening(): void {
+    this.speechRecognition.stopListening();
+  }
+
+  /**
+   * Get current speech transcript for display
+   */
+  getCurrentSpeechTranscript(): string {
+    if (this.speechState.interimTranscript) {
+      return this.speechState.interimTranscript;
+    }
+    return '';
+  }
+
+  /**
+   * Check if speech recognition is actively listening
+   */
+  get isMicrophoneActive(): boolean {
+    return this.speechState.isListening;
+  }
+
+  /**
+   * Get microphone status text
+   */
+  get microphoneStatus(): string {
+    if (!this.speechRecognition.isSupported()) {
+      return 'Microphone not supported';
+    }
+    if (this.speechState.error) {
+      return this.speechState.error;
+    }
+    if (this.speechState.isListening) {
+      return 'Listening... Speak now';
+    }
+    return 'Click to speak';
   }
 }

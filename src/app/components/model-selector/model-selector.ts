@@ -17,9 +17,12 @@ export class ModelSelector {
   @Input() isInitialized: boolean = false;
   @Input() progress: number = 0;
   @Input() progressText: string = '';
+  @Input() modelCached: boolean = false;
+  @Input() cacheSize: number = 0;
   
   @Output() modelSelected = new EventEmitter<string>();
   @Output() initializeTriggered = new EventEmitter<void>();
+  @Output() clearCacheTriggered = new EventEmitter<void>();
 
   selectedModelId: string = '';
 
@@ -51,8 +54,14 @@ export class ModelSelector {
     }
   }
 
+  onClearCache() {
+    if (confirm('Are you sure you want to clear all cached models? This will free up storage space but require re-downloading models.')) {
+      this.clearCacheTriggered.emit();
+    }
+  }
+
   getModelById(modelId: string): ModelOption | undefined {
-    return this.availableModels.find(m => m.id === modelId);
+    return this.availableModels.find(model => model.id === modelId);
   }
 
   getSpecializationIcon(specialization: string): string {
@@ -66,10 +75,26 @@ export class ModelSelector {
 
   getSpecializationLabel(specialization: string): string {
     switch (specialization) {
-      case 'therapy': return 'Therapy Focused';
-      case 'wellness': return 'Wellness Optimized';
-      case 'general': return 'General Purpose';
-      default: return 'Conversational';
+      case 'therapy': return 'Therapy';
+      case 'wellness': return 'Wellness';
+      case 'general': return 'General';
+      default: return 'AI';
     }
+  }
+
+  formatCacheSize(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  isModelCached(modelId: string): boolean {
+    // This is a simple check - in a real implementation, you might want to 
+    // track which specific models are cached
+    return this.modelCached && this.cacheSize > 0;
   }
 } 

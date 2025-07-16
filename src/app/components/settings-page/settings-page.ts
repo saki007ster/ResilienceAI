@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { HeadTts, TTSOptions } from '../../services/head-tts';
-import { AiCoachService } from '../../services/ai-coach.service';
+import { AiCoachEnhancedService as AiCoachService } from '../../services/ai-coach-enhanced.service';
 
 interface AppSettings {
   theme: 'light' | 'dark' | 'auto';

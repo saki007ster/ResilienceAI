@@ -1,0 +1,736 @@
+.vrm-avatar-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.08), rgba(99, 102, 241, 0.05));
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  max-width: 100%;
+
+  &.hidden {
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none;
+  }
+
+  &:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+}
+
+.avatar-3d-container {
+  position: relative;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  
+  /* Ensure proper aspect ratio for portrait view */
+  aspect-ratio: 3/4; /* Portrait orientation */
+  
+  canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 14px;
+    object-fit: cover; /* Ensure canvas fills container properly */
+  }
+
+  &:hover {
+    box-shadow: 
+      0 12px 40px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+}
+
+// Loading States
+.loading-overlay,
+.error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  z-index: 10;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(74, 144, 226, 0.2);
+  border-top: 4px solid #4A90E2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+  
+  @media (max-width: 568px) {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+    margin-bottom: 0.75rem;
+  }
+}
+
+.loading-text,
+.error-text {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
+  margin: 0;
+  text-align: center;
+  
+  @media (max-width: 568px) {
+    font-size: 0.8rem;
+  }
+}
+
+.error-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  
+  @media (max-width: 568px) {
+    font-size: 1.5rem;
+    margin-bottom: 0.4rem;
+  }
+}
+
+.retry-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  @media (max-width: 568px) {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+}
+
+// Avatar Status
+.avatar-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.3s ease;
+
+  &.speaking {
+    background: rgba(76, 175, 80, 0.15);
+    border-color: rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+    animation: speaking-pulse 2s ease-in-out infinite;
+
+    .status-text {
+      color: #4caf50;
+    }
+  }
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #4caf50;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+// Audio Waves Animation
+.audio-waves {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+
+  .wave {
+    width: 3px;
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+    border-radius: 2px;
+    animation: wave 1.5s ease-in-out infinite;
+    opacity: 0.7;
+
+    &:nth-child(1) { animation-delay: 0s; height: 12px; }
+    &:nth-child(2) { animation-delay: 0.1s; height: 16px; }
+    &:nth-child(3) { animation-delay: 0.2s; height: 8px; }
+    &:nth-child(4) { animation-delay: 0.3s; height: 14px; }
+  }
+}
+
+// Expression Controls
+.expression-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.expression-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.95);
+  }
+
+  &.happy:hover { box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3); }
+  &.sad:hover { box-shadow: 0 6px 20px rgba(156, 39, 176, 0.3); }
+  &.surprised:hover { box-shadow: 0 6px 20px rgba(255, 152, 0, 0.3); }
+  &.angry:hover { box-shadow: 0 6px 20px rgba(244, 67, 54, 0.3); }
+  &.neutral:hover { box-shadow: 0 6px 20px rgba(96, 125, 139, 0.3); }
+}
+
+// Avatar Controls
+.avatar-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.control-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  &.test-btn {
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.2), rgba(74, 144, 226, 0.1));
+    color: #4A90E2;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(74, 144, 226, 0.3), rgba(74, 144, 226, 0.2));
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+    }
+  }
+
+  &.pause-btn {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(255, 152, 0, 0.1));
+    color: #ff9800;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(255, 152, 0, 0.3), rgba(255, 152, 0, 0.2));
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+    }
+  }
+
+  &.stop-btn {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(244, 67, 54, 0.1));
+    color: #f44336;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(244, 67, 54, 0.3), rgba(244, 67, 54, 0.2));
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+    }
+  }
+}
+
+// Avatar Info Panel
+.avatar-info {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.info-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.info-value {
+  color: #1e293b;
+  font-weight: 600;
+
+  &.active {
+    color: #4caf50;
+    animation: pulse-text 2s ease-in-out infinite;
+  }
+}
+
+// Avatar Customization (Future Enhancement)
+.avatar-customization {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+
+  h4 {
+    margin: 0 0 1rem 0;
+    font-size: 0.9rem;
+    color: #64748b;
+    text-align: center;
+  }
+}
+
+.avatar-options {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.avatar-option {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #64748b;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #1e293b;
+    transform: translateY(-1px);
+  }
+}
+
+// Animations
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes speaking-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0.1);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .vrm-avatar-container {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .avatar-3d-container {
+    max-width: 300px;
+    max-height: 300px;
+  }
+
+  .expression-controls {
+    gap: 0.25rem;
+  }
+
+  .expression-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+  }
+
+  .control-btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .info-item {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .vrm-avatar-container {
+    border: 2px solid #000;
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .info-label {
+    color: #000;
+  }
+
+  .info-value {
+    color: #000;
+    
+    &.active {
+      color: #0066cc;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .vrm-avatar-container,
+  .avatar-3d-container,
+  .expression-btn,
+  .control-btn {
+    transition: none;
+    animation: none;
+  }
+
+  .loading-spinner {
+    animation: none;
+  }
+
+  .pulse-dot,
+  .audio-waves .wave {
+    animation: none;
+  }
+}
+
+/* Responsive Design for VRM Avatar */
+
+/* Large Desktop (1400px+) */
+@media (min-width: 1400px) {
+  .vrm-avatar-container {
+    padding: 2rem;
+    gap: 1.25rem;
+  }
+  
+  .avatar-3d-container {
+    /* Larger avatar on big screens */
+    min-height: 320px;
+  }
+}
+
+/* Desktop/Laptop (1024px - 1400px) - Default size */
+@media (min-width: 1025px) and (max-width: 1399px) {
+  .vrm-avatar-container {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+}
+
+/* Tablet (768px - 1024px) - Side by side with avatar selector */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .vrm-avatar-container {
+    padding: 1rem;
+    gap: 0.75rem;
+    /* Ensure it works well in horizontal tablet layout */
+    max-width: 48%;
+    min-width: 280px;
+  }
+  
+  .avatar-3d-container {
+    min-height: 200px;
+    max-height: 250px;
+  }
+  
+  .avatar-status {
+    font-size: 0.85rem;
+    
+    .status-indicator {
+      padding: 0.4rem 0.8rem;
+    }
+  }
+  
+  .expression-controls {
+    .expression-btn {
+      font-size: 1.2rem;
+      padding: 0.4rem;
+      width: 35px;
+      height: 35px;
+    }
+  }
+  
+  .avatar-controls {
+    .control-btn {
+      font-size: 0.8rem;
+      padding: 0.5rem 0.8rem;
+    }
+  }
+}
+
+/* Mobile Landscape (569px - 768px) */
+@media (max-width: 768px) and (min-width: 569px) {
+  .vrm-avatar-container {
+    padding: 0.75rem;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 48%;
+  }
+  
+  .avatar-3d-container {
+    min-height: 180px;
+    max-height: 200px;
+  }
+  
+  .avatar-status {
+    font-size: 0.8rem;
+    
+    .status-indicator {
+      padding: 0.3rem 0.6rem;
+      
+      .status-text {
+        font-size: 0.75rem;
+      }
+    }
+  }
+  
+  .expression-controls {
+    gap: 0.3rem;
+    
+    .expression-btn {
+      font-size: 1rem;
+      padding: 0.3rem;
+      width: 30px;
+      height: 30px;
+    }
+  }
+  
+  .avatar-controls {
+    .control-btn {
+      font-size: 0.75rem;
+      padding: 0.4rem 0.6rem;
+    }
+  }
+  
+  .avatar-info {
+    .info-section {
+      .info-item {
+        font-size: 0.75rem;
+        
+        .info-label,
+        .info-value {
+          font-size: 0.7rem;
+        }
+      }
+    }
+  }
+}
+
+/* Mobile Portrait (max-width: 568px) */
+@media (max-width: 568px) {
+  .vrm-avatar-container {
+    padding: 0.75rem;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    /* Reduce size significantly on mobile */
+    transform: scale(0.9);
+    transform-origin: center top;
+  }
+  
+  .avatar-3d-container {
+    min-height: 160px;
+    max-height: 180px;
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+  }
+  
+  .avatar-status {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    
+    .status-indicator {
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      
+      .status-text {
+        font-size: 0.7rem;
+      }
+      
+      .pulse-dot {
+        width: 6px;
+        height: 6px;
+      }
+    }
+    
+    .audio-waves {
+      margin-top: 0.25rem;
+      
+      .wave {
+        width: 3px;
+        margin: 0 1px;
+      }
+    }
+  }
+  
+  .expression-controls {
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    
+    .expression-btn {
+      font-size: 0.9rem;
+      padding: 0.25rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+    }
+  }
+  
+  .avatar-controls {
+    flex-direction: column;
+    gap: 0.4rem;
+    
+    .control-btn {
+      font-size: 0.7rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 150px;
+    }
+  }
+  
+  .avatar-info {
+    .info-section {
+      .info-item {
+        font-size: 0.7rem;
+        padding: 0.25rem 0;
+        
+        .info-label {
+          font-size: 0.65rem;
+          min-width: 50px;
+        }
+        
+        .info-value {
+          font-size: 0.65rem;
+        }
+      }
+    }
+  }
+}
+
+/* Very Small Mobile (max-width: 350px) */
+@media (max-width: 350px) {
+  .vrm-avatar-container {
+    padding: 0.5rem;
+    gap: 0.5rem;
+    transform: scale(0.85);
+  }
+  
+  .avatar-3d-container {
+    min-height: 140px;
+    max-height: 160px;
+    max-width: 180px;
+  }
+  
+  .avatar-status {
+    .status-indicator {
+      padding: 0.2rem 0.4rem;
+      
+      .status-text {
+        font-size: 0.65rem;
+      }
+    }
+  }
+  
+  .expression-controls {
+    .expression-btn {
+      font-size: 0.8rem;
+      width: 24px;
+      height: 24px;
+    }
+  }
+  
+  .avatar-controls {
+    .control-btn {
+      font-size: 0.65rem;
+      padding: 0.3rem 0.5rem;
+    }
+  }
+} 

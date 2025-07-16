@@ -17,6 +17,8 @@ export interface AiCoachState {
   currentModel: string | null;
   progress: number;
   progressText: string;
+  modelCached: boolean;
+  cacheSize: number;
   error?: string;
 }
 
@@ -42,19 +44,21 @@ export class AiCoachEnhancedService {
     device: 'unknown',
     currentModel: null,
     progress: 0,
-    progressText: ''
+    progressText: '',
+    modelCached: false,
+    cacheSize: 0
   });
 
   public state$ = this.stateSubject.asObservable();
 
   // Available models optimized for mental health and wellness
-  public availableModels: ModelOption[] = [
+  public readonly availableModels: ModelOption[] = [
     {
       id: 'Llama-3.2-1B-Instruct-q4f16_1-MLC',
-      name: 'Llama 3.2 1B (Optimized)',
+      name: 'Llama 3.2 1B (Lightweight)',
       size: '0.6GB',
-      description: 'Fast, efficient model perfect for real-time conversations',
-      specialization: 'general',
+      description: 'Fast and efficient for quick conversations',
+      specialization: 'wellness',
       recommended: true
     },
     {
@@ -85,6 +89,7 @@ export class AiCoachEnhancedService {
 
   constructor() {
     this.initializeConversation();
+    this.checkModelCache();
   }
 
   /**
@@ -95,31 +100,106 @@ export class AiCoachEnhancedService {
   }
 
   /**
+   * Check if any models are already cached
+   */
+  private async checkModelCache(): Promise<void> {
+    try {
+      console.log('[AiCoachEnhanced] 🔍 Checking for cached models...');
+      
+      // Check Cache API for WebLLM cached models
+      const cacheNames = await caches.keys();
+      const webllmCaches = cacheNames.filter(name => name.includes('webllm') || name.includes('model'));
+      
+      let totalCacheSize = 0;
+      let modelsCached = false;
+
+      for (const cacheName of webllmCaches) {
+        const cache = await caches.open(cacheName);
+        const requests = await cache.keys();
+        
+        for (const request of requests) {
+          const response = await cache.match(request);
+          if (response) {
+            const responseClone = response.clone();
+            const blob = await responseClone.blob();
+            totalCacheSize += blob.size;
+            modelsCached = true;
+          }
+        }
+      }
+
+      if (modelsCached) {
+        console.log(`[AiCoachEnhanced] ✅ Found cached models: ${(totalCacheSize / (1024 * 1024 * 1024)).toFixed(2)} GB`);
+        this.updateState({ 
+          modelCached: true, 
+          cacheSize: totalCacheSize,
+          progressText: 'Models already cached - ready for instant loading'
+        });
+      } else {
+        console.log('[AiCoachEnhanced] ⚠️  No cached models found - first download required');
+        this.updateState({ 
+          modelCached: false, 
+          cacheSize: 0,
+          progressText: 'No cached models found'
+        });
+      }
+    } catch (error) {
+      console.error('[AiCoachEnhanced] Error checking model cache:', error);
+      this.updateState({ modelCached: false, cacheSize: 0 });
+    }
+  }
+
+  /**
    * Initialize the WebLLM engine with selected model
    */
   async initializeModel(modelId?: string): Promise<void> {
     const selectedModel = modelId || this.availableModels.find(m => m.recommended)?.id || 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
     
-    this.updateState({ isLoading: true, error: undefined });
+    // If model is already loaded with the same ID, don't reload
+    if (this.engine && this.currentState.currentModel === selectedModel && this.currentState.modelLoaded) {
+      console.log(`[AiCoachEnhanced] ♻️  Model ${selectedModel} already loaded, skipping initialization`);
+      return;
+    }
+
+    this.updateState({ isLoading: true, error: undefined, progressText: 'Initializing WebLLM engine...' });
     
     try {
-      console.log('[AiCoachEnhanced] Initializing WebLLM engine...');
+      console.log('[AiCoachEnhanced] 🚀 Initializing WebLLM engine...');
+      
+      // Check if this specific model is cached
+      const isModelCached = await this.isSpecificModelCached(selectedModel);
+      
+      if (isModelCached) {
+        console.log(`[AiCoachEnhanced] ⚡ Model ${selectedModel} found in cache - loading instantly`);
+        this.updateState({ progressText: 'Loading cached model...', progress: 0 });
+      } else {
+        console.log(`[AiCoachEnhanced] 📥 Model ${selectedModel} not cached - downloading required`);
+        this.updateState({ progressText: 'Downloading model (this may take a while)...', progress: 0 });
+      }
       
       // Initialize WebLLM engine
       this.engine = new webllm.MLCEngine();
       
       // Set up progress callback
       this.engine.setInitProgressCallback((progress: any) => {
-        const progressPercentage = (progress.progress * 100).toFixed(1);
-        const progressText = progress.text;
-        console.log(`[AiCoachEnhanced] Loading progress: ${progressText} (${progressPercentage}%)`);
+        const progressPercentage = (progress.progress * 100);
+        let progressText = progress.text;
+        
+        // Enhance progress messages
+        if (isModelCached && progressPercentage < 50) {
+          progressText = `Loading cached model: ${progressText}`;
+        } else if (!isModelCached) {
+          progressText = `Downloading model: ${progressText}`;
+        }
+        
+        console.log(`[AiCoachEnhanced] Loading progress: ${progressText} (${progressPercentage.toFixed(1)}%)`);
         this.updateState({ 
-          progress: progress.progress * 100, 
+          progress: progressPercentage, 
           progressText: progressText 
         });
       });
 
-      console.log(`[AiCoachEnhanced] Loading model: ${selectedModel}`);
+      console.log(`[AiCoachEnhanced] 📦 Loading model: ${selectedModel}`);
       
       // Load the selected model
       await this.engine.reload(selectedModel);
@@ -131,12 +211,17 @@ export class AiCoachEnhancedService {
       console.log(`[AiCoachEnhanced] Device: ${device}`);
       console.log(`[AiCoachEnhanced] Model: ${selectedModel}`);
       
+      // Update cache status after successful load
+      await this.checkModelCache();
+      
       this.updateState({
         isInitialized: true,
         isLoading: false,
         modelLoaded: true,
         device,
-        currentModel: selectedModel
+        currentModel: selectedModel,
+        progress: 100,
+        progressText: 'Model loaded and ready!'
       });
 
     } catch (error) {
@@ -145,9 +230,64 @@ export class AiCoachEnhancedService {
         isInitialized: false,
         isLoading: false,
         modelLoaded: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        progressText: 'Failed to load model'
       });
       throw error;
+    }
+  }
+
+  /**
+   * Check if a specific model is cached
+   */
+  private async isSpecificModelCached(modelId: string): Promise<boolean> {
+    try {
+      const cacheNames = await caches.keys();
+      
+      for (const cacheName of cacheNames) {
+        if (cacheName.includes('webllm') || cacheName.includes('model')) {
+          const cache = await caches.open(cacheName);
+          const requests = await cache.keys();
+          
+          for (const request of requests) {
+            const url = request.url;
+            // Check if URL contains model ID or related patterns
+            if (url.includes(modelId) || 
+                url.includes(modelId.toLowerCase()) ||
+                url.includes(modelId.replace(/-/g, '_'))) {
+              console.log(`[AiCoachEnhanced] 🎯 Found cached files for model: ${modelId}`);
+              return true;
+            }
+          }
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('[AiCoachEnhanced] Error checking specific model cache:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Clear all cached models (useful for debugging or freeing space)
+   */
+  async clearModelCache(): Promise<void> {
+    try {
+      console.log('[AiCoachEnhanced] 🧹 Clearing model cache...');
+      
+      const cacheNames = await caches.keys();
+      const webllmCaches = cacheNames.filter(name => name.includes('webllm') || name.includes('model'));
+      
+      for (const cacheName of webllmCaches) {
+        await caches.delete(cacheName);
+        console.log(`[AiCoachEnhanced] Deleted cache: ${cacheName}`);
+      }
+      
+      this.updateState({ modelCached: false, cacheSize: 0 });
+      console.log('[AiCoachEnhanced] ✅ Cache cleared successfully');
+    } catch (error) {
+      console.error('[AiCoachEnhanced] Error clearing cache:', error);
     }
   }
 

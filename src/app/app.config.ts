@@ -9,8 +9,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes), 
-    provideServiceWorker('rai-sw.js', {
-      enabled: true,
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
     })
   ]

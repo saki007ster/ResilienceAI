@@ -1,0 +1,145 @@
+<div class="avatar-selector">
+  <!-- Current Avatar Display -->
+  <div class="current-avatar" (click)="toggleSelector()">
+    <div class="avatar-preview">
+      <img 
+        [src]="currentAvatar?.previewImage || '/assets/avatars/previews/default.svg'" 
+        [alt]="currentAvatar?.name || 'Default Avatar'"
+        class="preview-image"
+        onerror="this.src='/assets/avatars/previews/fallback.svg'">
+      <div class="avatar-overlay">
+        <span class="change-text">Change Avatar</span>
+      </div>
+    </div>
+    <div class="avatar-info">
+      <h4 class="avatar-name">{{ currentAvatar?.name || 'Default Avatar' }}</h4>
+      <p class="avatar-description">{{ currentAvatar?.description || 'Click to change avatar' }}</p>
+    </div>
+    <div class="selector-icon" [class.rotated]="isOpen">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6,9 12,15 18,9"></polyline>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Avatar Selection Panel -->
+  <div class="selection-panel" [class.open]="isOpen">
+    <!-- Categories -->
+    <div class="categories">
+      <button 
+        *ngFor="let category of categories"
+        class="category-btn"
+        [class.active]="selectedCategory === category.id"
+        (click)="selectCategory(category.id)">
+        <span class="category-icon">{{ category.icon }}</span>
+        <span class="category-name">{{ category.name }}</span>
+      </button>
+    </div>
+
+    <!-- Avatar Grid -->
+    <div class="avatars-grid">
+      <div 
+        *ngFor="let avatar of filteredAvatars"
+        class="avatar-card"
+        [class.selected]="currentAvatarId === avatar.id"
+        (click)="selectAvatar(avatar)">
+        
+        <!-- Preview Image -->
+        <div class="card-preview">
+          <img 
+            [src]="avatar.previewImage" 
+            [alt]="avatar.name"
+            class="card-image"
+            onerror="this.src='/assets/avatars/previews/fallback.svg'">
+          
+          <!-- Status Badges -->
+          <div class="status-badges">
+            <span class="badge free" *ngIf="avatar.isFree">Free</span>
+            <span class="badge default" *ngIf="avatar.isDefault">Default</span>
+          </div>
+
+          <!-- Selection Indicator -->
+          <div class="selection-indicator" *ngIf="currentAvatarId === avatar.id">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="12" fill="currentColor"/>
+              <path d="M8 12l2 2 4-4" stroke="white" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Card Info -->
+        <div class="card-info">
+          <h5 class="card-title">{{ avatar.name }}</h5>
+          <p class="card-description">{{ avatar.description }}</p>
+          
+          <!-- Tags -->
+          <div class="card-tags">
+            <span 
+              *ngFor="let tag of avatar.tags.slice(0, 3)" 
+              class="tag">
+              {{ tag }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <div class="upload-area">
+        <input 
+          type="file" 
+          id="avatar-upload" 
+          accept=".vrm"
+          (change)="onCustomAvatarUpload($event)"
+          class="file-input">
+        
+        <label for="avatar-upload" class="upload-label">
+          <div class="upload-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17,8 12,3 7,8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div class="upload-text">
+            <h4>Upload Custom Avatar</h4>
+            <p>Drop your .vrm file here or click to browse</p>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="action-btn secondary" (click)="downloadFromVRoidHub()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7,10 12,15 17,10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Get More Avatars
+      </button>
+      
+      <button class="action-btn secondary" (click)="learnAboutVRM()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"/>
+          <path d="M12,17h0"/>
+        </svg>
+        Learn About VRM
+      </button>
+    </div>
+
+    <!-- Close Button -->
+    <button class="close-btn" (click)="toggleSelector()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Backdrop -->
+  <div class="backdrop" [class.visible]="isOpen" (click)="toggleSelector()"></div>
+</div> 

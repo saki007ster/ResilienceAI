@@ -1,24 +1,25 @@
 # 🧠 Resilience AI
 
-> **An offline-first AI wellness coach Progressive Web App with local LLM and animated avatar**
+> **An offline-first AI wellness coach Progressive Web App with VRM avatars and local LLM**
 
-Resilience AI is a cutting-edge wellness coaching application that combines local artificial intelligence with engaging avatar interactions. The app runs entirely offline using a simulated AI coach, features real-time lip-synced avatar animation with text-to-speech, and provides a professional wellness coaching experience through conversational interface.
+Resilience AI is a cutting-edge wellness coaching application that combines **real local LLM processing** with **immersive VRM avatar interactions**. The app runs entirely offline using WebLLM technology, features hardware-accelerated 3D VRM avatars with advanced animations, and provides professional wellness coaching through a modern conversational interface.
 
 ## 🎯 Vision
 
 Create an accessible, privacy-first mental wellness platform that:
-- **Works completely offline** for privacy and accessibility
-- **Provides instant AI coaching** through conversational interface  
-- **Features engaging avatar interactions** with realistic lip-sync and TTS
-- **Seamlessly connects to human experts** when needed (planned)
-- **Runs on any device** as a Progressive Web App
+- **Works completely offline** with real LLM models for privacy and accessibility
+- **Provides genuine AI coaching** through advanced constitutional prompting
+- **Features immersive VRM avatar interactions** with 3D rendering, lip-sync, and facial expressions
+- **Offers modern, responsive UI** with glassmorphism design and accessibility features
+- **Runs on any device** as a Progressive Web App with optimized performance
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ and npm
-- Modern browser with service worker support
-- Chrome/Edge recommended for best experience
+- Modern browser with WebGL support
+- **Chrome/Edge 90+ recommended** for WebGPU acceleration and VRM support
+- **4GB+ available RAM** for local LLM models
 
 ### Installation
 
@@ -36,125 +37,136 @@ ng serve
 # Open browser to http://localhost:4200
 ```
 
-### ⚙️ OAuth Setup (for Calendar Features)
-For the Schedule feature to work, you need to set up Google OAuth:
-- **Quick Setup**: Follow the in-app wizard in the Schedule tab
-- **Detailed Guide**: See [OAUTH_SETUP.md](./OAUTH_SETUP.md)
-
-### 🎮 Try It Now!
+### 🎮 Experience the Full AI Coach
 1. Navigate to the Chat interface
-2. Click **"Download Now"** to simulate AI model download
-3. Watch the progress animation complete
-4. Start chatting with your AI wellness coach!
-5. Experience real-time avatar lip-sync and text-to-speech
+2. **Select your preferred LLM model** (Llama 3.2, Qwen 2.5, Gemma 2)
+3. **Choose or upload a VRM avatar** from our collection
+4. Watch the model download with **real-time progress tracking**
+5. Start conversations with **genuine AI responses**
+6. Experience **3D avatar animations** with lip-sync, expressions, and natural movements!
 
 ## ✨ Current Features
 
-### 🎯 **Core Functionality**
-- ✅ **Full Chat Interface**: Working conversation with AI wellness coach
-- ✅ **Model Download Simulation**: Realistic progress with fallback for testing
-- ✅ **AI Response Generation**: Constitutional prompting for wellness coaching
-- ✅ **Real-time Status**: Model Ready, WebGPU detection, TTS Ready indicators
+### 🤖 **Advanced AI Integration**
+- ✅ **Real Local LLM Processing**: WebLLM with Llama 3.2 (1B/3B), Qwen 2.5 (1.5B), Gemma 2 (2B)
+- ✅ **Constitutional AI Prompting**: Specialized for wellness and therapy applications
+- ✅ **Smart Model Selection**: Choose optimal model based on device capabilities
+- ✅ **Intelligent Caching**: Models persist offline with cache management
+- ✅ **WebGPU Acceleration**: Hardware-accelerated inference with WASM fallback
 
-### 🎬 **Avatar & Speech**
-- ✅ **Animated Avatar**: Canvas-based lip-sync with 14 viseme mouth shapes
-- ✅ **Text-to-Speech**: Web Speech API with 191+ voice options
-- ✅ **Viseme Animation**: Real-time mouth movement (aa, E, I, O, U, PP, SS, TH, CH, FF, kk, nn, RR, DD, sil)
+### 🎭 **VRM Avatar System**
+- ✅ **3D VRM Avatar Support**: Industry-standard VRM format used by VTubers
+- ✅ **Hardware-Accelerated Rendering**: Three.js with WebGL for smooth 60fps
+- ✅ **Advanced Facial Animation**: 14 viseme lip-sync + facial expressions (happy, sad, surprised, angry)
+- ✅ **Natural Behaviors**: Eye blinking, head bobbing, breathing animations
+- ✅ **Avatar Collection**: Pre-loaded avatars across categories (Male, Female, Anime, Fantasy)
+- ✅ **Custom Avatar Upload**: Support for user-provided VRM files
+- ✅ **Portrait Optimization**: Camera positioning for head/upper-body focus
+
+### 🎨 **Modern UI/UX**
+- ✅ **Glassmorphism Design**: Modern translucent interface with backdrop blur
+- ✅ **Fully Responsive Layout**: Optimized for mobile, tablet, and ultra-wide desktop
+- ✅ **CSS Grid System**: Adaptive layout with 300px-350px sidebar + flexible chat area
+- ✅ **Dynamic Breakpoints**: 5 responsive tiers (≤350px to ≥1400px)
+- ✅ **Accessibility First**: ARIA labels, keyboard navigation, reduced motion support
+- ✅ **Professional Animations**: Subtle hover effects and smooth transitions
+
+### 🎬 **Audio & Speech**
+- ✅ **Advanced Text-to-Speech**: Web Speech API with 191+ voice options
+- ✅ **Real-time Lip Sync**: Synchronized mouth movements with speech audio
 - ✅ **Voice Controls**: Auto-speak, pause, stop, individual message replay
+- ✅ **Viseme Animation**: 14 phoneme mouth shapes for realistic speech
 
-### 🎨 **User Experience**
-- ✅ **Professional UI**: Glassmorphism design with status indicators
-- ✅ **Responsive Layout**: Side-by-side avatar and chat on desktop, stacked on mobile
-- ✅ **Accessibility**: Screen reader support, reduced motion, high contrast
-- ✅ **PWA Features**: Offline capability, service worker, manifest
-- ✅ **Message Management**: Timestamps, conversation history, clear functionality
-
-### 🔧 **Technical Features**
-- ✅ **Service Worker**: Advanced caching with model download simulation
-- ✅ **State Management**: RxJS observables for AI, model, and TTS states
-- ✅ **Error Handling**: Graceful fallbacks and user feedback
-- ✅ **Performance**: RequestAnimationFrame animations, optimized rendering
+### 🔧 **Technical Excellence**
+- ✅ **Progressive Web App**: Full offline capability with service worker
+- ✅ **Persistent Model Storage**: Cache API integration for model persistence
+- ✅ **Performance Optimized**: Lazy loading, efficient rendering, memory management
+- ✅ **Error Handling**: Graceful fallbacks and comprehensive user feedback
+- ✅ **State Management**: RxJS observables for reactive UI updates
 
 ## 🏗️ Technology Stack
 
-### Frontend
+### Frontend & UI
 - **Angular 17+** - Modern web framework with standalone components
 - **TypeScript** - Type-safe development with strict mode
-- **SCSS** - Advanced styling with glassmorphism and responsive design
-- **Canvas API** - Hardware-accelerated avatar rendering
-- **Web Speech API** - Cross-browser text-to-speech synthesis
+- **SCSS** - Advanced styling with CSS Grid, glassmorphism effects
+- **Three.js** - 3D graphics engine for VRM avatar rendering
+- **@pixiv/three-vrm** - VRM format support and animation
 
-### AI & ML Implementation
-- **Simulated AI Coach** - Constitutional prompting for wellness responses
-- **WebGPU Detection** - Hardware acceleration with WASM fallback simulation
-- **Conversation Management** - Context-aware response generation
-- **Viseme Mapping** - 14 phoneme-to-mouth-shape animations
+### AI & Machine Learning
+- **@mlc-ai/web-llm** - Client-side LLM execution with WebGPU/WASM
+- **Multiple LLM Models**: Llama 3.2 (1B/3B), Qwen 2.5 (1.5B), Gemma 2 (2B)
+- **Constitutional AI**: Specialized prompting for wellness coaching
+- **WebGPU API** - Hardware acceleration with automatic fallback
+
+### Audio & Animation
+- **Web Speech API** - Cross-browser text-to-speech synthesis
+- **Canvas API** - Fallback avatar rendering system
+- **WebGL** - Hardware-accelerated 3D graphics
+- **RequestAnimationFrame** - Smooth 60fps animations
 
 ### PWA & Performance
 - **Service Workers** - Model caching and offline functionality
-- **Background Fetch API** - Large file download simulation
+- **Cache API** - Persistent model storage across sessions
+- **Background Fetch API** - Large file download support
 - **RxJS** - Reactive state management and event handling
-- **Performance Optimization** - Lazy loading, efficient rendering
 
 ## 📋 Development Roadmap
 
-### ✅ Phase 1: PWA Shell & Core Services (COMPLETED)
-**Goal**: Establish the foundation with PWA capabilities and navigation
+### ✅ Phase 1: Foundation & PWA (COMPLETED)
+- [x] Angular 17+ project with PWA support
+- [x] Professional UI with navigation and routing
+- [x] Core service architecture
+- [x] Responsive glassmorphism design
 
-**Completed**:
-- [x] Angular 17+ project with PWA support and service worker
-- [x] Professional UI with navigation (Chat, Schedule, Settings)
-- [x] Core service architecture and routing
-- [x] Responsive design with glassmorphism styling
+### ✅ Phase 2: Real LLM Integration (COMPLETED)
+- [x] **WebLLM Integration**: Multiple model support with model selector
+- [x] **Constitutional AI**: Specialized wellness coaching prompts
+- [x] **Performance Optimization**: WebGPU acceleration and WASM fallback
+- [x] **Caching System**: Persistent model storage with cache management
 
----
+### ✅ Phase 3: VRM Avatar System (COMPLETED)
+- [x] **3D VRM Support**: Three.js integration with VRM loader
+- [x] **Avatar Collection**: Pre-loaded avatars with category browsing
+- [x] **Custom Upload**: User VRM file support with validation
+- [x] **Advanced Animation**: Lip-sync, expressions, natural behaviors
+- [x] **Performance**: Hardware-accelerated rendering with fallbacks
 
-### ✅ Phase 2: Offline AI Core (COMPLETED)
-**Goal**: Implement local AI execution with advanced caching strategies
+### ✅ Phase 4: UI/UX Modernization (COMPLETED)
+- [x] **Responsive Design**: 5-tier breakpoint system for all devices
+- [x] **Layout Optimization**: CSS Grid with sidebar + flexible chat area
+- [x] **Accessibility**: Full ARIA support, keyboard navigation
+- [x] **Visual Polish**: Animations, glassmorphism, professional styling
 
-**Completed**:
-- [x] **2.1**: Service worker with model download simulation
-  - Background Fetch API fallback system
-  - Progress tracking and user feedback
-  - Smart caching with error handling
-- [x] **2.2 & 2.3**: AI Coach service with conversation management
-  - Constitutional prompting for wellness coaching
-  - WebGPU/WASM device detection simulation
-  - Conversation history and context management
-  - Automatic model readiness detection
-
----
-
-### ✅ Phase 3: Interactive Experience (COMPLETED)
-**Goal**: Create engaging avatar-based conversations with lip-sync
-
-**Completed**:
-- [x] **3.1 & 3.2**: Avatar and TTS integration
-  - Canvas-based avatar with real-time rendering
-  - Web Speech API integration with 191+ voices
-  - Professional glassmorphism UI design
-- [x] **3.3**: Lip-sync animation system
-  - 14 viseme mouth shapes (aa, E, I, O, U, PP, SS, TH, CH, FF, kk, nn, RR, DD, sil)
-  - Real-time synchronization with speech
-  - Natural eye blinking and head movement
-  - Accessibility features and reduced motion support
-
-**Current Status**: Fully functional chat with AI coach, animated avatar, and TTS
-
----
-
-### 📋 Phase 4: Human Handoff (PLANNED)
-**Goal**: Seamless integration with human coaching services
+### 📋 Phase 5: Advanced Features (PLANNED)
+**Goal**: Enhanced AI capabilities and user personalization
 
 **Tasks**:
-- [ ] **4.1 & 4.2**: Google Calendar integration
+- [ ] **5.1**: Voice Input Integration
+  - Speech recognition for hands-free interaction
+  - Wake word detection for natural conversation
+  - Multi-language support
+- [ ] **5.2**: Personalization System
+  - User preference learning
+  - Conversation history analytics
+  - Custom coaching styles
+- [ ] **5.3**: Advanced Avatar Features
+  - Emotion-based expression changes
+  - Gesture animation system
+  - Avatar personality traits
+
+### 📋 Phase 6: Professional Integration (PLANNED)
+**Goal**: Human coaching handoff and scheduling
+
+**Tasks**:
+- [ ] **6.1**: Google Calendar Integration
   - OAuth 2.0 authentication flow
-  - Calendar API for meeting scheduling
-  - Secure token storage in IndexedDB
-- [ ] **4.3**: Offline scheduling capabilities
-  - Background Sync API implementation
-  - Queue management for offline requests
-  - Automatic sync when connection restored
+  - Meeting scheduling with therapists
+  - Availability matching system
+- [ ] **6.2**: Coaching Marketplace
+  - Therapist discovery and booking
+  - Secure communication channels
+  - Session management tools
 
 ## 🛠️ Development Guide
 
@@ -163,145 +175,180 @@ For the Schedule feature to work, you need to set up Google OAuth:
 src/
 ├── app/
 │   ├── components/
-│   │   ├── chat-window/       # ✅ AI conversation interface
-│   │   ├── avatar/           # ✅ Canvas-based lip-sync avatar
-│   │   ├── model-download/   # ✅ Download simulation UI
-│   │   ├── settings-page/    # Settings and configuration
-│   │   └── schedule-flow/    # Meeting scheduling (planned)
+│   │   ├── chat-window/           # ✅ AI conversation interface
+│   │   ├── vrm-avatar/           # ✅ 3D VRM avatar with Three.js
+│   │   ├── avatar-selector/      # ✅ Avatar browsing and upload
+│   │   ├── model-selector/       # ✅ LLM model selection UI
+│   │   ├── settings-page/        # Configuration and preferences
+│   │   └── schedule-flow/        # Meeting scheduling (planned)
 │   ├── services/
-│   │   ├── ai-coach.service.ts      # ✅ AI conversation management
-│   │   ├── model-download.ts        # ✅ Download simulation
-│   │   ├── head-tts.ts             # ✅ Text-to-speech with visemes
-│   │   ├── calendar.service.ts      # Google Calendar API (planned)
-│   │   └── google-auth.service.ts   # OAuth management (planned)
-│   ├── app.routes.ts          # ✅ Navigation configuration
-│   └── app.config.ts          # ✅ PWA and service providers
+│   │   ├── ai-coach-enhanced.service.ts  # ✅ WebLLM integration
+│   │   ├── head-tts.ts                  # ✅ TTS with viseme mapping
+│   │   ├── speech-recognition.service.ts # Speech input (planned)
+│   │   └── calendar.service.ts          # Google Calendar (planned)
+│   ├── interfaces/
+│   │   ├── ai-coach-state.ts           # ✅ AI state management
+│   │   └── avatar-types.ts             # ✅ VRM avatar definitions
+│   └── app.routes.ts              # ✅ Navigation configuration
 ├── public/
-│   ├── rai-sw.js             # ✅ Custom service worker
-│   ├── manifest.webmanifest  # ✅ PWA configuration
-│   └── icons/               # ✅ App icons for all sizes
-└── assets/
-    └── gemma-model.bin      # ✅ Mock model for testing
+│   ├── assets/avatars/           # ✅ VRM avatar collection
+│   ├── manifest.webmanifest     # ✅ PWA configuration
+│   └── icons/                   # ✅ App icons for all platforms
+└── assets/                      # Static resources
 ```
 
-### Testing the Application
+### Model Integration Testing
 
-#### Model Download Simulation
+#### LLM Model Download & Caching
 ```bash
 # Start development server
 ng serve
 
 # Navigate to http://localhost:4200/chat
-# 1. Click "Download Now" button
-# 2. Watch progress animation (20% increments every 600ms)
-# 3. See status change to "Model Ready" + "WEBGPU" + "TTS Ready"
-# 4. Chat interface becomes active automatically
+# 1. Select model (Llama 3.2 1B recommended for testing)
+# 2. Watch real download progress with speed indicators
+# 3. See cache status and model size information
+# 4. Verify model persists after page reload
+# 5. Test cache clearing functionality
 ```
 
-#### Chat Interface Testing
+#### AI Conversation Testing
 ```bash
-# After model download completes:
-# 1. Type a wellness-related message
-# 2. Press Enter to send
-# 3. Watch AI generate thoughtful response
-# 4. See avatar lip-sync with TTS audio
-# 5. Try voice controls (pause, stop, auto-speak)
+# After model loads:
+# 1. Type wellness-related questions
+# 2. Observe genuine AI responses (not templates)
+# 3. Test constitutional prompting boundaries
+# 4. Verify conversation context maintenance
+# 5. Check response quality and relevance
 ```
 
-#### Avatar Animation Testing
+### VRM Avatar Testing
+
+#### Avatar Selection & Upload
 ```bash
-# During TTS playback:
-# 1. Watch mouth shapes change with speech sounds
-# 2. See natural eye blinking every 3-5 seconds  
-# 3. Notice head bobbing during speech
-# 4. Try pause/stop controls
-# 5. Test individual message replay
+# Avatar System Testing:
+# 1. Browse avatar categories (Male, Female, Anime, Fantasy)
+# 2. Select different avatars and watch 3D loading
+# 3. Upload custom VRM files (test with VRoid Hub models)
+# 4. Verify fallback system if VRM fails to load
+# 5. Test portrait view positioning and scaling
+```
+
+#### Animation & Lip-Sync
+```bash
+# During AI responses:
+# 1. Watch real-time lip-sync with TTS
+# 2. Observe facial expressions (happy, sad, surprised)
+# 3. Notice natural eye blinking and head movement
+# 4. Test voice controls (pause, stop, replay)
+# 5. Verify smooth 60fps rendering performance
+```
+
+### Responsive Design Testing
+
+#### Multi-Device Layout
+```bash
+# Test responsive breakpoints:
+# 1. Mobile Portrait (≤568px): Stacked layout
+# 2. Mobile Landscape (569-768px): Side-by-side
+# 3. Tablet (769-1024px): Enhanced grid
+# 4. Desktop (1025-1400px): Standard sidebar
+# 5. Large Desktop (≥1400px): Expanded layout
+
+# Check dynamic avatar sizing:
+# - Mobile: 160-200px
+# - Tablet: 220px  
+# - Desktop: 240-280px
 ```
 
 ### Performance Testing
 
 ```bash
-# Production build
+# Production build with optimizations
 ng build --configuration production
 
-# Serve with service worker
-npx http-server dist/resilience-ai -p 8080
-
-# Test offline functionality:
-# 1. Load app online
-# 2. Go offline (dev tools > Network > Offline)
-# 3. Reload page - should work offline
-# 4. Download simulation works without network
+# Test with realistic constraints
+# 1. Enable CPU throttling (4x slowdown)
+# 2. Limit network to 3G speeds
+# 3. Test model download interruption/resume
+# 4. Verify VRM rendering performance
+# 5. Check memory usage with large models
 ```
 
-## 📱 Browser Support & Features
+## 📱 Browser Support & Performance
 
-### Optimal Experience
-- **Chrome 80+** - Full WebGPU, Background Fetch, all features
-- **Edge 80+** - Full WebGPU, Background Fetch, all features
+### Optimal Experience (Recommended)
+- **Chrome 90+** - Full WebGPU, VRM support, all features
+- **Edge 90+** - Full WebGPU, VRM support, all features
+- **4GB+ RAM** for comfortable LLM model execution
 
-### Good Experience  
-- **Firefox 78+** - Web Speech API, core functionality
-- **Safari 14+** - Basic features, some TTS limitations
+### Good Experience
+- **Chrome 80+** - WebGL VRM support, WASM LLM fallback
+- **Firefox 80+** - Basic VRM support, some limitations
+- **Safari 14+** - Limited VRM support, basic functionality
 
-### PWA Capabilities
-- ✅ **Service Workers** - Offline functionality and caching
-- ✅ **Web App Manifest** - Installation and app-like experience
-- ✅ **Background Fetch** - Large file downloads (Chrome/Edge)
-- ✅ **Web Speech API** - Text-to-speech synthesis
-- ✅ **Canvas API** - Hardware-accelerated avatar rendering
+### Feature Support Matrix
+| Feature | Chrome 90+ | Chrome 80+ | Firefox 80+ | Safari 14+ |
+|---------|------------|-------------|-------------|------------|
+| WebLLM (WebGPU) | ✅ Full | ⚠️ WASM | ⚠️ WASM | ❌ Limited |
+| VRM Avatars | ✅ Full | ✅ Full | ⚠️ Basic | ⚠️ Basic |
+| TTS Lip-Sync | ✅ Perfect | ✅ Perfect | ✅ Good | ⚠️ Limited |
+| Model Caching | ✅ Full | ✅ Full | ✅ Full | ⚠️ Limited |
+| Responsive UI | ✅ Perfect | ✅ Perfect | ✅ Perfect | ✅ Perfect |
 
-## 🎭 Avatar Animation Details
+## 🎭 VRM Avatar Features
 
-### Viseme Mapping
-The avatar supports 14 distinct mouth shapes corresponding to speech sounds:
+### Supported VRM Specifications
+- **VRM 0.x and 1.0** format support
+- **Humanoid rigging** with standard bone structure
+- **Blend shapes** for facial expressions and visemes
+- **Texture materials** with PBR support
+- **Animation clips** for natural movement
 
-| Viseme | Sounds | Description |
-|--------|---------|-------------|
-| `aa` | 'a', 'ah' | Open mouth |
-| `E` | 'e', 'eh' | Mid-open |
-| `I` | 'i', 'ih' | Narrow smile |
-| `O` | 'o', 'oh' | Round mouth |
-| `U` | 'u', 'oo' | Pursed lips |
-| `PP` | 'p', 'b', 'm' | Closed lips |
-| `SS` | 's', 'z' | Narrow opening |
-| `TH` | 'th', 'dh' | Tongue visible |
-| `CH` | 'ch', 'sh', 'j' | Rounded narrow |
-| `FF` | 'f', 'v' | Lip-teeth contact |
-| `kk` | 'k', 'g' | Back of tongue |
-| `nn` | 'n', 't', 'd', 'l' | Tongue-teeth |
-| `RR` | 'r' | Rounded tongue |
-| `DD` | Default consonant | Standard position |
-| `sil` | Silence | Neutral/closed |
+### Animation Capabilities
+| Feature | Description | Performance |
+|---------|-------------|-------------|
+| **Lip Sync** | 14 viseme mouth shapes | Real-time |
+| **Facial Expressions** | Happy, sad, surprised, angry, neutral | Smooth transitions |
+| **Eye Movement** | Blinking every 3-5 seconds | Natural timing |
+| **Head Animation** | Bobbing during speech | Subtle movement |
+| **Breathing** | Chest rise/fall simulation | Continuous |
 
-### Animation Features
-- **60 FPS rendering** using RequestAnimationFrame
-- **Real-time viseme detection** from speech synthesis
-- **Natural timing** with proper mouth shape transitions
-- **Eye blinking** every 3-5 seconds for realism
-- **Head movement** during speech for engagement
+### Avatar Sources
+- **Built-in Collection**: 12+ high-quality avatars across categories
+- **VRoid Hub**: Free avatars from the community
+- **Custom Upload**: Support for user-created VRM files
+- **Booth.pm**: Premium avatar marketplace integration
 
 ## 🔒 Privacy & Security
 
-- **Local-first**: All AI processing simulated locally, no external AI calls
-- **No data collection**: Conversations stored in browser session only
-- **Privacy-focused**: No analytics, tracking, or data transmission
-- **Secure by design**: Service worker isolation and content security
+### Local-First AI
+- **No external API calls**: All LLM processing happens locally
+- **Model storage**: Cached in browser with Cache API
+- **Conversation privacy**: Data never leaves your device
+- **GDPR compliant**: No data collection or transmission
+
+### Security Features
+- **Content Security Policy**: Strict CSP headers
+- **Service Worker isolation**: Secure background processing
+- **Input sanitization**: XSS protection for user input
+- **File validation**: Safe VRM upload handling
 
 ## 🤝 Contributing
 
 ### Development Workflow
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/enhancement-name`
-3. Test thoroughly with the chat interface
-4. Submit a pull request with demo screenshots
+3. Test with multiple LLM models and VRM avatars
+4. Ensure responsive design works across breakpoints
+5. Submit PR with screenshots/videos of new functionality
 
 ### Testing Guidelines
-- Test model download simulation flow
-- Verify chat interface functionality  
-- Check avatar lip-sync quality
-- Ensure responsive design works
-- Test offline capabilities
+- Test LLM model selection and caching
+- Verify VRM avatar loading and animations
+- Check responsive design on multiple devices
+- Validate accessibility features
+- Test offline functionality thoroughly
 
 ## 📄 License
 
@@ -309,19 +356,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **Angular Team** for the robust PWA framework
-- **Web Speech API** for cross-browser TTS support
-- **Canvas API** for hardware-accelerated rendering
-- **Open source community** for inspiration and tools
+- **MLC AI Team** for WebLLM client-side inference
+- **Pixiv Team** for three-vrm VRM support
+- **Three.js Community** for 3D graphics framework
+- **VRoid Team** for VRM format and avatar creation tools
+- **Angular Team** for robust PWA capabilities
+- **Open source AI community** for advancing local LLM technology
 
 ---
 
-**🎉 Current Status**: Phase 3 Complete - Full chat interface with animated avatar! 
+**🎉 Current Status**: Phase 4 Complete - Production-ready AI wellness coach with VRM avatars!
 
-**✅ Ready Features**: Model download → AI conversation → Avatar lip-sync → TTS
+**✅ Live Features**: Real LLM models → VRM avatar conversations → Modern responsive UI → Offline-first PWA
 
-**🚀 Try it now**: `ng serve` and experience the future of offline AI wellness coaching!
+**🚀 Experience Now**: `ng serve` and chat with genuine AI using immersive 3D avatars!
 
 ---
 
-*Built with ❤️ for mental wellness and privacy-first AI interaction*
+*Built with ❤️ for mental wellness, privacy-first AI, and the future of human-computer interaction*

@@ -23,6 +23,11 @@
           <span class="status-dot"></span>
           <span role="status" aria-live="polite">{{ headTts.isSupported() ? 'TTS Ready' : 'TTS Not Available' }}</span>
         </div>
+
+        <div class="status-item" [class.active]="speechRecognition.isSupported()">
+          <span class="status-dot"></span>
+          <span role="status" aria-live="polite">{{ speechRecognition.isSupported() ? 'Voice Input Ready' : 'Voice Input Not Available' }}</span>
+        </div>
       </div>
     </div>
   </header>
@@ -37,8 +42,11 @@
         [isInitialized]="aiState.isInitialized"
         [progress]="aiState.progress"
         [progressText]="aiState.progressText"
+        [modelCached]="aiState.modelCached"
+        [cacheSize]="aiState.cacheSize"
         (modelSelected)="onModelSelected($event)"
-        (initializeTriggered)="onInitializeTriggered()">
+        (initializeTriggered)="onInitializeTriggered()"
+        (clearCacheTriggered)="onClearCache()">
       </app-model-selector>
     </div>
   </div>
@@ -49,10 +57,19 @@
       <div class="card fade-in chat-main-content">
       <!-- Avatar and Chat Side-by-Side Layout -->
       <div class="avatar-section" *ngIf="avatarEnabled">
-        <app-avatar 
-          [size]="200" 
-          [isVisible]="avatarEnabled">
-        </app-avatar>
+        <!-- Avatar Selector -->
+        <app-avatar-selector
+          [currentAvatarId]="currentAvatarId"
+          (avatarSelected)="onAvatarSelected($event)"
+          (customAvatarUploaded)="onCustomAvatarUploaded($event)">
+        </app-avatar-selector>
+
+        <!-- VRM Avatar Display -->
+        <app-vrm-avatar 
+          [size]="getAvatarSize()"
+          [isVisible]="avatarEnabled"
+          [avatarUrl]="currentAvatarUrl">
+        </app-vrm-avatar>
         
         <!-- TTS Controls -->
         <div class="tts-controls">
@@ -161,12 +178,25 @@
         <textarea 
           [(ngModel)]="userInput"
           (keydown)="onKeyPress($event)"
-          placeholder="Share what's on your mind... (Press Enter to send, Shift+Enter for new line)"
+          [placeholder]="speechState.isListening ? 'Listening... Speak now' : 'Share what\'s on your mind... (Press Enter to send, Shift+Enter for new line)'"
           class="message-input"
+          [class.listening]="speechState.isListening"
           rows="2"
           [disabled]="isGenerating"
           #messageInput>
         </textarea>
+        
+        <!-- Microphone Button -->
+        <button 
+          (click)="toggleMicrophone()" 
+          [disabled]="isGenerating"
+          class="mic-button"
+          [class.active]="speechState.isListening"
+          [class.supported]="speechRecognition.isSupported()"
+          [title]="microphoneStatus">
+          <span *ngIf="!speechState.isListening">🎤</span>
+          <span *ngIf="speechState.isListening" class="listening-pulse">🔴</span>
+        </button>
         
         <button 
           (click)="sendMessage()" 
@@ -176,6 +206,30 @@
           <span *ngIf="!isGenerating">➤</span>
           <span *ngIf="isGenerating" class="loading-spinner">⟳</span>
         </button>
+      </div>
+      
+      <!-- Speech Recognition Status -->
+      <div class="speech-status" *ngIf="speechState.isListening || speechState.error">
+        <div class="speech-indicator" *ngIf="speechState.isListening && !speechState.error">
+          <span class="listening-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span class="listening-text">Listening... Speak clearly into your microphone</span>
+        </div>
+        
+        <div class="speech-error" *ngIf="speechState.error">
+          <span class="error-icon">⚠️</span>
+          <span class="error-text">{{ speechState.error }}</span>
+          <button class="retry-btn" (click)="toggleMicrophone()">Try Again</button>
+        </div>
+      </div>
+      
+      <!-- Interim Speech Display -->
+      <div class="interim-speech" *ngIf="speechState.interimTranscript">
+        <span class="interim-label">You're saying:</span>
+        <span class="interim-text">"{{ speechState.interimTranscript }}"</span>
       </div>
       
       <!-- Input Status -->

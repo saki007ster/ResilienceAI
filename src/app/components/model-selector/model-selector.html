@@ -2,6 +2,20 @@
   <div class="selector-header">
     <h3><span class="header-icon">💬</span> Choose Your AI Model</h3>
     <p class="text-muted">Select the language model that best fits your needs</p>
+    
+    <!-- Cache Status Display -->
+    <div class="cache-status" *ngIf="cacheSize > 0">
+      <span class="cache-icon">💾</span>
+      <span class="cache-text">
+        Cached models: {{ formatCacheSize(cacheSize) }}
+        <span class="cache-ready" *ngIf="modelCached">⚡ Ready for instant loading</span>
+      </span>
+    </div>
+    
+    <div class="cache-status warning" *ngIf="cacheSize === 0">
+      <span class="cache-icon">⚠️</span>
+      <span class="cache-text">No cached models - first download required</span>
+    </div>
   </div>
 
   <div class="models-grid">
@@ -32,6 +46,7 @@
           </span>
           <span *ngIf="model.recommended" class="recommended-badge">⭐ Recommended</span>
           <span *ngIf="currentModel === model.id" class="current-badge">✅ Active</span>
+          <span *ngIf="isModelCached(model.id)" class="cached-badge">💾 Cached</span>
         </div>
       </div>
 
@@ -57,29 +72,42 @@
       <span class="info-label">Selected:</span>
       <span class="info-value">{{ getModelById(selectedModelId)?.name }}</span>
       <span class="info-size">({{ getModelById(selectedModelId)?.size }})</span>
+      <span class="cache-indicator" *ngIf="isModelCached(selectedModelId)">💾 Cached</span>
     </div>
 
-    <button
-      class="initialize-btn"
-      [disabled]="!selectedModelId || isLoading"
-      (click)="onInitializeClick()">
-      
-      <span *ngIf="!isLoading && !isInitialized" class="btn-text">
-        🚀 Initialize {{ getModelById(selectedModelId)?.name }}
-      </span>
-      
-      <span *ngIf="!isLoading && isInitialized && selectedModelId !== currentModel" class="btn-text">
-        🔄 Switch to {{ getModelById(selectedModelId)?.name }}
-      </span>
-      
-      <span *ngIf="isLoading" class="btn-text">
-        <span class="loading-spinner">⟳</span> Loading Model...
-      </span>
-      
-      <span *ngIf="isInitialized && selectedModelId === currentModel" class="btn-text">
-        ✅ {{ getModelById(selectedModelId)?.name }} Ready
-      </span>
-    </button>
+    <div class="action-buttons">
+      <button
+        class="initialize-btn"
+        [disabled]="!selectedModelId || isLoading"
+        (click)="onInitializeClick()">
+        
+        <span *ngIf="!isLoading && !isInitialized" class="btn-text">
+          🚀 Initialize {{ getModelById(selectedModelId)?.name }}
+        </span>
+        
+        <span *ngIf="!isLoading && isInitialized && selectedModelId !== currentModel" class="btn-text">
+          🔄 Switch to {{ getModelById(selectedModelId)?.name }}
+        </span>
+        
+        <span *ngIf="isLoading" class="btn-text">
+          <span class="loading-spinner">⟳</span> Loading Model...
+        </span>
+        
+        <span *ngIf="isInitialized && selectedModelId === currentModel" class="btn-text">
+          ✅ {{ getModelById(selectedModelId)?.name }} Ready
+        </span>
+      </button>
+
+      <!-- Debug Cache Controls -->
+      <button
+        class="debug-btn clear-cache"
+        *ngIf="cacheSize > 0"
+        [disabled]="isLoading"
+        (click)="onClearCache()"
+        title="Clear all cached models to free up space">
+        🗑️ Clear Cache
+      </button>
+    </div>
   </div>
 </div>
 
@@ -95,5 +123,9 @@
   <div class="note-item">
     <span class="note-icon">⚡</span>
     <span class="note-text">Models with WebGPU support will run faster on compatible devices</span>
+  </div>
+  <div class="note-item" *ngIf="modelCached">
+    <span class="note-icon">💾</span>
+    <span class="note-text">Cached models load instantly without requiring internet connection</span>
   </div>
 </div> 

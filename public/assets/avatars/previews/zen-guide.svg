@@ -1,0 +1,11 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" fill="#F3E8FF" rx="12"/>
+  <circle cx="60" cy="45" r="18" fill="#8B5CF6"/>
+  <path d="M30 95C35 85 85 85 90 95C95 105 25 105 30 95Z" fill="#8B5CF6"/>
+  <path d="M54 38L55 40L57 38" stroke="#F3E8FF" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M63 38L64 40L66 38" stroke="#F3E8FF" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M56 52C58 54 62 54 64 52" stroke="#F3E8FF" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="60" cy="30" r="4" fill="#F3E8FF"/>
+  <path d="M56 26C58 24 62 24 64 26" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <text x="60" y="110" text-anchor="middle" fill="#6D28D9" font-family="system-ui, sans-serif" font-size="10" font-weight="600">Zen</text>
+</svg> 
