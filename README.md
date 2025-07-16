@@ -36,6 +36,11 @@ ng serve
 # Open browser to http://localhost:4200
 ```
 
+### ⚙️ OAuth Setup (for Calendar Features)
+For the Schedule feature to work, you need to set up Google OAuth:
+- **Quick Setup**: Follow the in-app wizard in the Schedule tab
+- **Detailed Guide**: See [OAUTH_SETUP.md](./OAUTH_SETUP.md)
+
 ### 🎮 Try It Now!
 1. Navigate to the Chat interface
 2. Click **"Download Now"** to simulate AI model download
