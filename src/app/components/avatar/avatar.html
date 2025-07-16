@@ -2,19 +2,61 @@
   <!-- Main avatar canvas -->
   <canvas #avatarCanvas class="avatar-canvas"></canvas>
   
-  <!-- Speaking status indicator -->
+  <!-- Enhanced speaking status indicator -->
   <div class="speaking-status" *ngIf="isSpeaking">
-    <div class="pulse-dot"></div>
-    <span>Speaking...</span>
+    <div class="pulse-dot advanced"></div>
+    <span class="status-text">AI is speaking...</span>
+    <div class="audio-waves">
+      <div class="wave"></div>
+      <div class="wave"></div>
+      <div class="wave"></div>
+    </div>
   </div>
   
   <!-- Current viseme display (for debugging) -->
   <div class="viseme-debug" *ngIf="currentViseme !== 'sil'">
-    {{ currentViseme }}
+    <span class="viseme-label">Viseme:</span>
+    <span class="viseme-value">{{ currentViseme }}</span>
   </div>
   
-  <!-- TTS Controls (optional) -->
+  <!-- Expression controls for demonstration -->
+  <div class="expression-controls" *ngIf="!isSpeaking">
+    <button 
+      class="expression-btn happy" 
+      (click)="triggerExpression('happy')"
+      title="Happy Expression">
+      😊
+    </button>
+    <button 
+      class="expression-btn surprised" 
+      (click)="triggerExpression('surprised')"
+      title="Surprised Expression">
+      😯
+    </button>
+    <button 
+      class="expression-btn thoughtful" 
+      (click)="triggerExpression('thoughtful')"
+      title="Thoughtful Expression">
+      🤔
+    </button>
+    <button 
+      class="expression-btn neutral" 
+      (click)="triggerExpression('neutral')"
+      title="Neutral Expression">
+      😐
+    </button>
+  </div>
+  
+  <!-- TTS Controls -->
   <div class="avatar-controls">
+    <button 
+      class="control-btn test-btn" 
+      *ngIf="!isSpeaking" 
+      (click)="speak('Hello! I am your AI wellness coach. How are you feeling today?')"
+      title="Test Voice">
+      🎤 Test
+    </button>
+    
     <button 
       class="control-btn pause-btn" 
       *ngIf="isSpeaking" 
@@ -30,5 +72,19 @@
       title="Stop Speech">
       ⏹️
     </button>
+  </div>
+  
+  <!-- Avatar info panel -->
+  <div class="avatar-info">
+    <div class="info-item">
+      <span class="info-label">Status:</span>
+      <span class="info-value" [class.active]="isSpeaking">
+        {{ isSpeaking ? 'Speaking' : 'Listening' }}
+      </span>
+    </div>
+    <div class="info-item" *ngIf="currentViseme !== 'sil'">
+      <span class="info-label">Lip Sync:</span>
+      <span class="info-value active">Active</span>
+    </div>
   </div>
 </div>

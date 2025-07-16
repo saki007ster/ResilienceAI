@@ -1,1 +1,73 @@
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  --color-bg: #f5f7fa;
+  --color-bg-glass: rgba(255, 255, 255, 0.7);
+  --color-primary: #1976d2;
+  --color-accent: #7c3aed;
+  --color-card: rgba(255,255,255,0.85);
+  --color-border: rgba(30, 41, 59, 0.08);
+  --color-shadow: 0 4px 24px rgba(30, 41, 59, 0.08);
+  --color-text: #1a202c;
+  --color-text-muted: #64748b;
+  --color-active: #e0e7ff;
+  --color-focus: #c7d2fe;
+  --radius: 18px;
+  --transition: 0.25s cubic-bezier(.4,0,.2,1);
+  --max-width: 900px;
+  --header-height: 64px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  color: var(--color-text);
+  margin-top: 0;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:focus {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--color-shadow);
+  border: 1px solid var(--color-border);
+  padding: 2rem;
+  transition: box-shadow var(--transition), transform var(--transition);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  margin-bottom: 2rem;
+}
+
+.card:hover, .card:focus-within {
+  box-shadow: 0 8px 32px rgba(30, 41, 59, 0.16);
+  transform: translateY(-2px) scale(1.01);
+}
+
+// Utility classes
+.text-muted { color: var(--color-text-muted); }
+.fade-in {
+  animation: fadeIn 0.7s cubic-bezier(.4,0,.2,1);
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}

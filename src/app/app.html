@@ -1,16 +1,18 @@
 <div class="app-container">
-  <nav class="nav-bar">
+  <header class="nav-bar glass-header" role="banner">
     <div class="nav-brand">
       <h1>Resilience AI</h1>
     </div>
-    <div class="nav-links">
+    <nav class="nav-links" role="navigation" aria-label="Main navigation">
       <a routerLink="/chat" routerLinkActive="active">Chat</a>
       <a routerLink="/schedule" routerLinkActive="active">Schedule</a>
       <a routerLink="/settings" routerLinkActive="active">Settings</a>
-    </div>
-  </nav>
+    </nav>
+  </header>
   
-  <main class="main-content">
-    <router-outlet></router-outlet>
+  <main class="main-content fade-in" tabindex="-1">
+    <div class="main-inner">
+      <router-outlet></router-outlet>
+    </div>
   </main>
 </div>

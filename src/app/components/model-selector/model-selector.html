@@ -1,0 +1,89 @@
+<div class="card fade-in model-selector-container" aria-label="AI Model Selector">
+  <div class="selector-header">
+    <h3>🧠 Choose Your AI Model</h3>
+    <p>Select the language model that best fits your needs</p>
+  </div>
+
+  <div class="models-grid">
+    <div
+      *ngFor="let model of availableModels"
+      class="card model-card"
+      [class.selected]="selectedModelId === model.id"
+      [class.current]="currentModel === model.id"
+      [class.disabled]="isLoading"
+      (click)="onModelChange(model.id)">
+      
+      <div class="model-header">
+        <div class="model-info">
+          <span class="model-icon">{{ getSpecializationIcon(model.specialization) }}</span>
+          <div class="model-details">
+            <h4 class="model-name">{{ model.name }}</h4>
+            <span class="model-size">{{ model.size }}</span>
+          </div>
+        </div>
+        
+        <div class="model-badges">
+          <span class="specialization-badge" [class]="'spec-' + model.specialization">
+            {{ getSpecializationLabel(model.specialization) }}
+          </span>
+          <span *ngIf="model.recommended" class="recommended-badge">⭐ Recommended</span>
+          <span *ngIf="currentModel === model.id" class="current-badge">✅ Active</span>
+        </div>
+      </div>
+
+      <p class="model-description">{{ model.description }}</p>
+
+      <div class="model-footer">
+        <div class="selection-indicator">
+          <span *ngIf="selectedModelId === model.id" class="selected-indicator">●</span>
+          <span *ngIf="selectedModelId !== model.id" class="unselected-indicator">○</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="selector-actions">
+    <div class="selected-model-info" *ngIf="selectedModelId">
+      <span class="info-label">Selected:</span>
+      <span class="info-value">{{ getModelById(selectedModelId)?.name }}</span>
+      <span class="info-size">({{ getModelById(selectedModelId)?.size }})</span>
+    </div>
+
+    <button
+      class="initialize-btn"
+      [disabled]="!selectedModelId || isLoading"
+      (click)="onInitializeClick()">
+      
+      <span *ngIf="!isLoading && !isInitialized" class="btn-text">
+        🚀 Initialize {{ getModelById(selectedModelId)?.name }}
+      </span>
+      
+      <span *ngIf="!isLoading && isInitialized && selectedModelId !== currentModel" class="btn-text">
+        🔄 Switch to {{ getModelById(selectedModelId)?.name }}
+      </span>
+      
+      <span *ngIf="isLoading" class="btn-text">
+        <span class="loading-spinner">⟳</span> Loading Model...
+      </span>
+      
+      <span *ngIf="isInitialized && selectedModelId === currentModel" class="btn-text">
+        ✅ {{ getModelById(selectedModelId)?.name }} Ready
+      </span>
+    </button>
+  </div>
+
+  <div class="selector-notes">
+    <div class="note-item">
+      <span class="note-icon">💡</span>
+      <span class="note-text">Larger models provide better responses but require more memory and longer download times</span>
+    </div>
+    <div class="note-item">
+      <span class="note-icon">🔒</span>
+      <span class="note-text">All models run locally in your browser - your conversations remain private</span>
+    </div>
+    <div class="note-item">
+      <span class="note-icon">⚡</span>
+      <span class="note-text">Models with WebGPU support will run faster on compatible devices</span>
+    </div>
+  </div>
+</div> 

@@ -1,8 +1,8 @@
 <div class="chat-window-container">
   
   <!-- Header -->
-  <div class="chat-header">
-    <div class="header-info">
+  <header class="chat-header" role="banner">
+    <div class="header-info" aria-label="Resilience AI Coach header">
       <h2>🧠 Resilience AI Coach</h2>
       <p>Your private, offline wellness companion</p>
     </div>
@@ -10,33 +10,39 @@
     <div class="status-indicators">
       <div class="status-item" [class.active]="isModelReady">
         <span class="status-dot"></span>
-        <span>{{ isModelReady ? 'Model Ready' : 'Model Not Ready' }}</span>
+        <span role="status" aria-live="polite">{{ isModelReady ? 'Model Ready' : 'Model Not Ready' }}</span>
       </div>
       
       <div class="status-item" [class.active]="isChatReady && isModelReady">
         <span class="status-dot"></span>
-        <span>{{ isChatReady && isModelReady ? aiDevice : 'AI Initializing' }}</span>
+        <span role="status" aria-live="polite">{{ isChatReady && isModelReady ? aiDevice : 'AI Initializing' }}</span>
       </div>
 
       <div class="status-item" [class.active]="headTts.isSupported()">
         <span class="status-dot"></span>
-        <span>{{ headTts.isSupported() ? 'TTS Ready' : 'TTS Not Available' }}</span>
+        <span role="status" aria-live="polite">{{ headTts.isSupported() ? 'TTS Ready' : 'TTS Not Available' }}</span>
       </div>
+    </div>
+  </header>
+
+  <!-- Model Selector Section (shown when no model is loaded) -->
+  <div *ngIf="showModelSelector" class="model-selector-section">
+    <div class="card fade-in">
+      <app-model-selector
+        [availableModels]="availableModels"
+        [currentModel]="aiState.currentModel"
+        [isLoading]="aiState.isLoading"
+        [isInitialized]="aiState.isInitialized"
+        (modelSelected)="onModelSelected($event)"
+        (initializeTriggered)="onInitializeTriggered()">
+      </app-model-selector>
     </div>
   </div>
 
-  <!-- Model Download Section (shown when model not ready) -->
-  <div *ngIf="!isModelReady" class="download-section">
-    <app-model-download></app-model-download>
-  </div>
-
   <!-- Main Chat Interface (shown when model is ready) -->
-  <div *ngIf="isModelReady" class="chat-interface">
-    
-    <!-- Avatar and Chat Side-by-Side Layout -->
-    <div class="chat-main-content">
-      
-      <!-- Avatar Section -->
+  <div *ngIf="!showModelSelector" class="chat-interface">
+    <div class="card fade-in chat-main-content">
+      <!-- Avatar and Chat Side-by-Side Layout -->
       <div class="avatar-section" *ngIf="avatarEnabled">
         <app-avatar 
           [size]="200" 

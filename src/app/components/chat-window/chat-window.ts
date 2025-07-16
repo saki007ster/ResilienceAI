@@ -2,16 +2,15 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { AiCoachService, ConversationMessage, AiCoachState } from '../../services/ai-coach.service';
-import { ModelDownloadService } from '../../services/model-download';
+import { AiCoachEnhancedService as AiCoachService, ConversationMessage, AiCoachState, ModelOption } from '../../services/ai-coach-enhanced.service';
 import { HeadTts, TTSState } from '../../services/head-tts';
-import { ModelDownload } from '../model-download/model-download';
 import { Avatar } from '../avatar/avatar';
+import { ModelSelector } from '../model-selector/model-selector';
 
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModelDownload, Avatar],
+  imports: [CommonModule, FormsModule, Avatar, ModelSelector],
   templateUrl: './chat-window.html',
   styleUrl: './chat-window.scss'
 })
@@ -37,32 +36,28 @@ export class ChatWindow implements OnInit, OnDestroy {
   avatarEnabled = true;
   autoSpeakReplies = true;
 
+  // Enhanced LLM properties
+  showModelSelector = false;
+  availableModels: ModelOption[] = [];
+
   private aiStateSubscription?: Subscription;
-  private modelStatusSubscription?: Subscription;
   private ttsStateSubscription?: Subscription;
 
   constructor(
     private aiCoachService: AiCoachService,
-    private modelDownloadService: ModelDownloadService,
     public headTts: HeadTts
   ) {}
 
   ngOnInit() {
+    // Get available models from enhanced service
+    this.availableModels = this.aiCoachService.availableModels;
+    
     // Subscribe to AI coach state changes
     this.aiStateSubscription = this.aiCoachService.state$.subscribe(
       state => {
         this.aiState = state;
+        this.showModelSelector = !state.isInitialized;
         this.updateMessages();
-      }
-    );
-
-    // Subscribe to model download status to reinitialize AI when ready
-    this.modelStatusSubscription = this.modelDownloadService.status$.subscribe(
-      status => {
-        if (status.cached && !status.isDownloading && !this.aiState.isInitialized) {
-          // Model is now available, try to initialize AI
-          this.aiCoachService.retryInitialization();
-        }
       }
     );
 
@@ -77,11 +72,11 @@ export class ChatWindow implements OnInit, OnDestroy {
     this.updateMessages();
 
     console.log('ChatWindow: Initialized with HeadTTS support:', this.headTts.isSupported());
+    console.log('ChatWindow: Available models:', this.availableModels.length);
   }
 
   ngOnDestroy() {
     this.aiStateSubscription?.unsubscribe();
-    this.modelStatusSubscription?.unsubscribe();
     this.ttsStateSubscription?.unsubscribe();
   }
 
@@ -213,10 +208,10 @@ export class ChatWindow implements OnInit, OnDestroy {
    * Get placeholder text for input
    */
   get inputPlaceholder(): string {
-    if (!this.isModelReady) {
-      return 'Download the AI model to start chatting...';
-    } else if (!this.isChatReady) {
-      return 'AI is initializing...';
+    if (!this.aiState.isInitialized) {
+      return 'Select and initialize an AI model to start chatting...';
+    } else if (this.aiState.isLoading) {
+      return 'AI model is loading...';
     } else if (this.isGenerating) {
       return 'AI is thinking...';
     } else {
@@ -257,5 +252,33 @@ export class ChatWindow implements OnInit, OnDestroy {
   // TrackBy function for ngFor optimization
   messageTrackBy(index: number, message: ConversationMessage): string {
     return `${message.timestamp.getTime()}-${message.role}`;
+  }
+
+  // Enhanced LLM Methods
+  async onModelSelected(modelId: string): Promise<void> {
+    try {
+      console.log('ChatWindow: Initializing model:', modelId);
+      await this.aiCoachService.initializeModel(modelId);
+    } catch (error) {
+      console.error('ChatWindow: Model initialization failed:', error);
+    }
+  }
+
+  async onModelSwitched(modelId: string): Promise<void> {
+    try {
+      console.log('ChatWindow: Switching to model:', modelId);
+      await this.aiCoachService.switchModel(modelId);
+    } catch (error) {
+      console.error('ChatWindow: Model switch failed:', error);
+    }
+  }
+
+  async onInitializeTriggered(): Promise<void> {
+    const firstModel = this.availableModels.find(m => m.recommended) || this.availableModels[0];
+    if (firstModel) {
+      await this.onModelSelected(firstModel.id);
+    } else {
+      console.warn('ChatWindow: No available models to initialize');
+    }
   }
 }

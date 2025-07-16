@@ -1,10 +1,383 @@
 <div class="settings-page">
-  <h2>Settings</h2>
-  <p>Customize your Resilience AI experience</p>
-  <div class="settings-placeholder">
-    <p>⚙️ App configuration options</p>
-    <p>🤖 AI model preferences</p>
-    <p>🔊 Audio and speech settings</p>
-    <p>💾 Data management</p>
+  <div class="settings-header">
+    <h2>Settings</h2>
+    <p>Customize your Resilience AI experience</p>
+  </div>
+
+  <!-- Settings Navigation -->
+  <div class="settings-nav">
+    <button 
+      *ngFor="let section of [
+        {id: 'app', icon: '⚙️', label: 'App Configuration'},
+        {id: 'ai', icon: '🤖', label: 'AI Model'},
+        {id: 'audio', icon: '🔊', label: 'Audio & Speech'},
+        {id: 'data', icon: '💾', label: 'Data Management'}
+      ]"
+      class="nav-btn"
+      [class.active]="activeSection === section.id"
+      (click)="setActiveSection(section.id)">
+      <span class="nav-icon">{{ section.icon }}</span>
+      <span class="nav-label">{{ section.label }}</span>
+    </button>
+  </div>
+
+  <!-- Settings Content -->
+  <div class="settings-content">
+
+    <!-- App Configuration Options -->
+    <div *ngIf="activeSection === 'app'" class="settings-section">
+      <div class="section-header">
+        <h3>⚙️ App Configuration Options</h3>
+        <p>Personalize your ResilienceAI interface and behavior</p>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Theme Selection -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="label-text">Theme</span>
+            <span class="label-description">Choose your preferred color scheme</span>
+          </label>
+          <div class="theme-selector">
+            <button
+              *ngFor="let theme of themes"
+              class="theme-btn"
+              [class.selected]="appSettings.theme === theme.value"
+              (click)="setTheme(theme.value)">
+              <span class="theme-icon">{{ theme.icon }}</span>
+              <span class="theme-label">{{ theme.label }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Auto-speak Messages -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="label-text">Auto-speak AI Responses</span>
+            <span class="label-description">Automatically read AI responses aloud</span>
+          </label>
+          <div class="toggle-switch">
+            <input
+              type="checkbox"
+              id="autoSpeak"
+              [(ngModel)]="appSettings.autoSpeak"
+              (change)="updateAppSettings()">
+            <label for="autoSpeak" class="toggle-label"></label>
+          </div>
+        </div>
+
+        <!-- Show Notifications -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="label-text">Show Notifications</span>
+            <span class="label-description">Enable browser notifications for important updates</span>
+          </label>
+          <div class="toggle-switch">
+            <input
+              type="checkbox"
+              id="showNotifications"
+              [(ngModel)]="appSettings.showNotifications"
+              (change)="updateAppSettings()">
+            <label for="showNotifications" class="toggle-label"></label>
+          </div>
+        </div>
+
+        <!-- Animate Avatar -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="label-text">Animate Avatar</span>
+            <span class="label-description">Enable lip-sync and avatar animations</span>
+          </label>
+          <div class="toggle-switch">
+            <input
+              type="checkbox"
+              id="animateAvatar"
+              [(ngModel)]="appSettings.animateAvatar"
+              (change)="updateAppSettings()">
+            <label for="animateAvatar" class="toggle-label"></label>
+          </div>
+        </div>
+
+        <!-- Show Timestamps -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="label-text">Show Timestamps</span>
+            <span class="label-description">Display message timestamps in chat</span>
+          </label>
+          <div class="toggle-switch">
+            <input
+              type="checkbox"
+              id="showTimestamps"
+              [(ngModel)]="appSettings.showTimestamps"
+              (change)="updateAppSettings()">
+            <label for="showTimestamps" class="toggle-label"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Model Preferences -->
+    <div *ngIf="activeSection === 'ai'" class="settings-section">
+      <div class="section-header">
+        <h3>🤖 AI Model Preferences</h3>
+        <p>Configure how the AI processes and responds to your input</p>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Device Selection -->
+        <div class="setting-item full-width">
+          <label class="setting-label">
+            <span class="label-text">Processing Device</span>
+            <span class="label-description">Choose how the AI model runs on your device</span>
+          </label>
+          <div class="device-selector">
+            <div
+              *ngFor="let device of devices"
+              class="device-option"
+              [class.selected]="aiSettings.device === device.value"
+              (click)="setDevice(device.value)">
+              <div class="device-header">
+                <span class="device-name">{{ device.label }}</span>
+                <span *ngIf="aiSettings.device === device.value" class="device-selected">✓</span>
+              </div>
+              <p class="device-description">{{ device.description }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Response Style -->
+        <div class="setting-item full-width">
+          <label class="setting-label">
+            <span class="label-text">Response Style</span>
+            <span class="label-description">How the AI should communicate with you</span>
+          </label>
+          <div class="response-selector">
+            <div
+              *ngFor="let style of responseStyles"
+              class="response-option"
+              [class.selected]="aiSettings.responseStyle === style.value"
+              (click)="setResponseStyle(style.value)">
+              <div class="response-header">
+                <span class="response-name">{{ style.label }}</span>
+                <span *ngIf="aiSettings.responseStyle === style.value" class="response-selected">✓</span>
+              </div>
+              <p class="response-description">{{ style.description }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation History Length -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="label-text">Conversation Memory</span>
+            <span class="label-description">How many messages the AI remembers</span>
+          </label>
+          <div class="range-input">
+            <input
+              type="range"
+              min="10"
+              max="100"
+              step="10"
+              [(ngModel)]="aiSettings.maxHistoryLength"
+              (input)="updateAiSettings()"
+              class="slider">
+            <span class="range-value">{{ aiSettings.maxHistoryLength }} messages</span>
+          </div>
+        </div>
+
+        <!-- Constitutional AI -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="label-text">Enhanced Safety</span>
+            <span class="label-description">Use Constitutional AI for safer responses</span>
+          </label>
+          <div class="toggle-switch">
+            <input
+              type="checkbox"
+              id="constitutionalAI"
+              [(ngModel)]="aiSettings.enableConstitutionalAI"
+              (change)="updateAiSettings()">
+            <label for="constitutionalAI" class="toggle-label"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio and Speech Settings -->
+    <div *ngIf="activeSection === 'audio'" class="settings-section">
+      <div class="section-header">
+        <h3>🔊 Audio and Speech Settings</h3>
+        <p>Configure text-to-speech and voice preferences</p>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Voice Selection -->
+        <div class="setting-item full-width">
+          <label class="setting-label">
+            <span class="label-text">Voice Selection</span>
+            <span class="label-description">Choose your preferred TTS voice</span>
+          </label>
+          <div class="voice-selector">
+            <select
+              [(ngModel)]="audioSettings.selectedVoiceIndex"
+              (change)="updateAudioSettings()"
+              class="voice-dropdown">
+              <option *ngFor="let voice of availableVoices; let i = index" [value]="i">
+                {{ voice.name }} ({{ voice.lang }})
+              </option>
+            </select>
+            <button class="test-btn" (click)="testTTS()">🔊 Test Voice</button>
+          </div>
+        </div>
+
+        <!-- Speech Rate -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="label-text">Speech Rate</span>
+            <span class="label-description">How fast the AI speaks</span>
+          </label>
+          <div class="range-input">
+            <input
+              type="range"
+              min="0.5"
+              max="2.0"
+              step="0.1"
+              [(ngModel)]="audioSettings.rate"
+              (input)="updateAudioSettings()"
+              class="slider">
+            <span class="range-value">{{ audioSettings.rate }}x</span>
+          </div>
+        </div>
+
+        <!-- Speech Pitch -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="label-text">Speech Pitch</span>
+            <span class="label-description">Voice pitch level</span>
+          </label>
+          <div class="range-input">
+            <input
+              type="range"
+              min="0.5"
+              max="2.0"
+              step="0.1"
+              [(ngModel)]="audioSettings.pitch"
+              (input)="updateAudioSettings()"
+              class="slider">
+            <span class="range-value">{{ audioSettings.pitch }}x</span>
+          </div>
+        </div>
+
+        <!-- Volume -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="label-text">Volume</span>
+            <span class="label-description">Audio volume level</span>
+          </label>
+          <div class="range-input">
+            <input
+              type="range"
+              min="0.0"
+              max="1.0"
+              step="0.1"
+              [(ngModel)]="audioSettings.volume"
+              (input)="updateAudioSettings()"
+              class="slider">
+            <span class="range-value">{{ (audioSettings.volume * 100) | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+
+        <!-- Current Voice Info -->
+        <div class="setting-item full-width">
+          <div class="voice-info">
+            <h4>Current Voice</h4>
+            <p>{{ getSelectedVoiceName() }}</p>
+            <div class="voice-settings-summary">
+              Rate: {{ audioSettings.rate }}x | 
+              Pitch: {{ audioSettings.pitch }}x | 
+              Volume: {{ (audioSettings.volume * 100) | number:'1.0-0' }}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Management -->
+    <div *ngIf="activeSection === 'data'" class="settings-section">
+      <div class="section-header">
+        <h3>💾 Data Management</h3>
+        <p>Manage your data, privacy, and storage preferences</p>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Storage Usage -->
+        <div class="setting-item full-width">
+          <div class="storage-info">
+            <h4>Storage Usage</h4>
+            <div class="storage-stats">
+              <div class="stat-item">
+                <span class="stat-label">Total Storage Used:</span>
+                <span class="stat-value">{{ storageUsed }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Conversation Messages:</span>
+                <span class="stat-value">{{ conversationCount }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Actions -->
+        <div class="setting-item full-width">
+          <div class="data-actions">
+            <h4>Data Actions</h4>
+            <div class="action-buttons">
+              <button class="action-btn export" (click)="exportUserData()">
+                📤 Export My Data
+                <span class="btn-description">Download all your data as JSON</span>
+              </button>
+
+              <button class="action-btn clear" (click)="clearConversationHistory()">
+                🗑️ Clear Chat History
+                <span class="btn-description">Remove all conversation messages</span>
+              </button>
+
+              <button class="action-btn reset" (click)="resetAllSettings()">
+                🔄 Reset All Settings
+                <span class="btn-description">Restore default configuration</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy Information -->
+        <div class="setting-item full-width">
+          <div class="privacy-info">
+            <h4>Privacy & Security</h4>
+            <div class="privacy-points">
+              <div class="privacy-point">
+                <span class="privacy-icon">🔒</span>
+                <div class="privacy-text">
+                  <strong>Local Processing:</strong> Your conversations are processed locally on your device
+                </div>
+              </div>
+              <div class="privacy-point">
+                <span class="privacy-icon">💾</span>
+                <div class="privacy-text">
+                  <strong>Local Storage:</strong> All data is stored in your browser's local storage
+                </div>
+              </div>
+              <div class="privacy-point">
+                <span class="privacy-icon">🚫</span>
+                <div class="privacy-text">
+                  <strong>No Tracking:</strong> We don't collect or transmit your personal conversations
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
