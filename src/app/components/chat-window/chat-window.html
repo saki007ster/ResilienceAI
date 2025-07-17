@@ -76,7 +76,7 @@
           <div class="tts-controls">
             <button 
               class="control-btn" 
-              [class.active]="autoSpeakReplies"
+              [class.active]="settings.audio.autoSpeakResponses"
               (click)="toggleAutoSpeak()"
               title="Toggle Auto-speak Replies"
               aria-label="Toggle automatic speech for AI responses">
@@ -140,8 +140,8 @@
                   <span class="message-sender">
                     {{ message.role === 'user' ? 'You' : 'RAI Coach' }}
                   </span>
-                  <span class="message-time">
-                    {{ message.timestamp | date:'short' }}
+                  <span class="message-time" *ngIf="showTimestamps">
+                    {{ message.timestamp | date:'shortTime' }}
                   </span>
                   <!-- Speak Button for AI messages -->
                   <button 

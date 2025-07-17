@@ -42,7 +42,7 @@
             <button
               *ngFor="let theme of themes"
               class="theme-btn"
-              [class.selected]="appSettings.theme === theme.value"
+              [class.selected]="settings.app.theme === theme.value"
               (click)="setTheme(theme.value)">
               <span class="theme-icon">{{ theme.icon }}</span>
               <span class="theme-label">{{ theme.label }}</span>
@@ -60,8 +60,8 @@
             <input
               type="checkbox"
               id="autoSpeak"
-              [(ngModel)]="appSettings.autoSpeak"
-              (change)="updateAppSettings()">
+              [(ngModel)]="settings.audio.autoSpeakResponses"
+              (change)="updateAudioSettings()">
             <label for="autoSpeak" class="toggle-label"></label>
           </div>
         </div>
@@ -76,7 +76,7 @@
             <input
               type="checkbox"
               id="showNotifications"
-              [(ngModel)]="appSettings.showNotifications"
+              [(ngModel)]="settings.app.showTimestamps"
               (change)="updateAppSettings()">
             <label for="showNotifications" class="toggle-label"></label>
           </div>
@@ -92,7 +92,7 @@
             <input
               type="checkbox"
               id="animateAvatar"
-              [(ngModel)]="appSettings.animateAvatar"
+              [(ngModel)]="settings.app.showTimestamps"
               (change)="updateAppSettings()">
             <label for="animateAvatar" class="toggle-label"></label>
           </div>
@@ -108,7 +108,7 @@
             <input
               type="checkbox"
               id="showTimestamps"
-              [(ngModel)]="appSettings.showTimestamps"
+              [(ngModel)]="settings.app.showTimestamps"
               (change)="updateAppSettings()">
             <label for="showTimestamps" class="toggle-label"></label>
           </div>
@@ -134,11 +134,11 @@
             <div
               *ngFor="let device of devices"
               class="device-option"
-              [class.selected]="aiSettings.device === device.value"
+              [class.selected]="settings.ai.device === device.value"
               (click)="setDevice(device.value)">
               <div class="device-header">
                 <span class="device-name">{{ device.label }}</span>
-                <span *ngIf="aiSettings.device === device.value" class="device-selected">✓</span>
+                <span *ngIf="settings.ai.device === device.value" class="device-selected">✓</span>
               </div>
               <p class="device-description">{{ device.description }}</p>
             </div>
@@ -155,11 +155,11 @@
             <div
               *ngFor="let style of responseStyles"
               class="response-option"
-              [class.selected]="aiSettings.responseStyle === style.value"
+              [class.selected]="settings.ai.responseStyle === style.value"
               (click)="setResponseStyle(style.value)">
               <div class="response-header">
                 <span class="response-name">{{ style.label }}</span>
-                <span *ngIf="aiSettings.responseStyle === style.value" class="response-selected">✓</span>
+                <span *ngIf="settings.ai.responseStyle === style.value" class="response-selected">✓</span>
               </div>
               <p class="response-description">{{ style.description }}</p>
             </div>
@@ -178,10 +178,10 @@
               min="10"
               max="100"
               step="10"
-              [(ngModel)]="aiSettings.maxHistoryLength"
+              [(ngModel)]="settings.ai.maxHistoryLength"
               (input)="updateAiSettings()"
               class="slider">
-            <span class="range-value">{{ aiSettings.maxHistoryLength }} messages</span>
+            <span class="range-value">{{ settings.ai.maxHistoryLength }} messages</span>
           </div>
         </div>
 
@@ -195,7 +195,7 @@
             <input
               type="checkbox"
               id="constitutionalAI"
-              [(ngModel)]="aiSettings.enableConstitutionalAI"
+              [(ngModel)]="settings.ai.enableConstitutionalAI"
               (change)="updateAiSettings()">
             <label for="constitutionalAI" class="toggle-label"></label>
           </div>
@@ -219,7 +219,7 @@
           </label>
           <div class="voice-selector">
             <select
-              [(ngModel)]="audioSettings.selectedVoiceIndex"
+              [(ngModel)]="settings.audio.selectedVoiceIndex"
               (change)="updateAudioSettings()"
               class="voice-dropdown">
               <option *ngFor="let voice of availableVoices; let i = index" [value]="i">
@@ -242,10 +242,10 @@
               min="0.5"
               max="2.0"
               step="0.1"
-              [(ngModel)]="audioSettings.rate"
+              [(ngModel)]="settings.audio.rate"
               (input)="updateAudioSettings()"
               class="slider">
-            <span class="range-value">{{ audioSettings.rate }}x</span>
+            <span class="range-value">{{ settings.audio.rate }}x</span>
           </div>
         </div>
 
@@ -261,10 +261,10 @@
               min="0.5"
               max="2.0"
               step="0.1"
-              [(ngModel)]="audioSettings.pitch"
+              [(ngModel)]="settings.audio.pitch"
               (input)="updateAudioSettings()"
               class="slider">
-            <span class="range-value">{{ audioSettings.pitch }}x</span>
+            <span class="range-value">{{ settings.audio.pitch }}x</span>
           </div>
         </div>
 
@@ -280,10 +280,10 @@
               min="0.0"
               max="1.0"
               step="0.1"
-              [(ngModel)]="audioSettings.volume"
+              [(ngModel)]="settings.audio.volume"
               (input)="updateAudioSettings()"
               class="slider">
-            <span class="range-value">{{ (audioSettings.volume * 100) | number:'1.0-0' }}%</span>
+            <span class="range-value">{{ (settings.audio.volume * 100) | number:'1.0-0' }}%</span>
           </div>
         </div>
 
@@ -293,9 +293,9 @@
             <h4>Current Voice</h4>
             <p>{{ getSelectedVoiceName() }}</p>
             <div class="voice-settings-summary">
-              Rate: {{ audioSettings.rate }}x | 
-              Pitch: {{ audioSettings.pitch }}x | 
-              Volume: {{ (audioSettings.volume * 100) | number:'1.0-0' }}%
+              Rate: {{ settings.audio.rate }}x | 
+              Pitch: {{ settings.audio.pitch }}x | 
+              Volume: {{ (settings.audio.volume * 100) | number:'1.0-0' }}%
             </div>
           </div>
         </div>

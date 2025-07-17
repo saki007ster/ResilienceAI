@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-// @ts-ignore - WebLLM types may not be fully available
-import * as webllm from '@mlc-ai/web-llm';
+import { CreateWebWorkerMLCEngine, WebWorkerMLCEngine, Chat, AppConfig } from '@mlc-ai/web-llm';
+import { SettingsService, AiSettings } from './settings.service';
 
 export interface ConversationMessage {
   role: 'user' | 'assistant' | 'system';
@@ -35,7 +35,7 @@ export interface ModelOption {
   providedIn: 'root'
 })
 export class AiCoachEnhancedService {
-  private engine?: webllm.MLCEngine;
+  private engine: WebWorkerMLCEngine | null = null;
   private conversationHistory: ConversationMessage[] = [];
   private stateSubject = new BehaviorSubject<AiCoachState>({
     isInitialized: false,
@@ -50,6 +50,9 @@ export class AiCoachEnhancedService {
   });
 
   public state$ = this.stateSubject.asObservable();
+
+  private chat?: Chat;
+  private settings: AiSettings;
 
   // Available models optimized for mental health and wellness
   public readonly availableModels: ModelOption[] = [
@@ -87,7 +90,11 @@ export class AiCoachEnhancedService {
     }
   ];
 
-  constructor() {
+  constructor(private settingsService: SettingsService) {
+    this.settings = this.settingsService.getSettings().ai;
+    this.settingsService.settings$.subscribe(settings => {
+      this.settings = settings.ai;
+    });
     this.initializeConversation();
     this.checkModelCache();
   }
@@ -178,31 +185,32 @@ export class AiCoachEnhancedService {
       }
       
       // Initialize WebLLM engine
-      this.engine = new webllm.MLCEngine();
-      
-      // Set up progress callback
-      this.engine.setInitProgressCallback((progress: any) => {
-        const progressPercentage = (progress.progress * 100);
-        let progressText = progress.text;
-        
-        // Enhance progress messages
-        if (isModelCached && progressPercentage < 50) {
-          progressText = `Loading cached model: ${progressText}`;
-        } else if (!isModelCached) {
-          progressText = `Downloading model: ${progressText}`;
+      this.engine = await CreateWebWorkerMLCEngine(
+        new Worker(
+          new URL('./worker.ts', import.meta.url),
+          {type: 'module'}
+        ),
+        selectedModel,
+        {
+          initProgressCallback: (progress) => {
+            const progressPercentage = (progress.progress * 100);
+            let progressText = progress.text;
+            
+            // Enhance progress messages
+            if (isModelCached && progressPercentage < 50) {
+              progressText = `Loading cached model: ${progressText}`;
+            } else if (!isModelCached) {
+              progressText = `Downloading model: ${progressText}`;
+            }
+            
+            console.log(`[AiCoachEnhanced] Loading progress: ${progressText} (${progressPercentage.toFixed(1)}%)`);
+            this.updateState({ 
+              progress: progressPercentage, 
+              progressText: progressText 
+            });
+          }
         }
-        
-        console.log(`[AiCoachEnhanced] Loading progress: ${progressText} (${progressPercentage.toFixed(1)}%)`);
-        this.updateState({ 
-          progress: progressPercentage, 
-          progressText: progressText 
-        });
-      });
-
-      console.log(`[AiCoachEnhanced] 📦 Loading model: ${selectedModel}`);
-      
-      // Load the selected model
-      await this.engine.reload(selectedModel);
+      );
       
       // Detect device capabilities
       const device = await this.detectDevice();
@@ -311,70 +319,39 @@ export class AiCoachEnhancedService {
   /**
    * Generate AI response with advanced wellness coaching
    */
-  async generateResponse(userInput: string): Promise<string> {
-    try {
-      if (!this.engine) {
-        throw new Error('AI model not initialized. Please wait for model loading to complete.');
-      }
-
-      // Add user message to conversation history
-      this.conversationHistory.push({
-        role: 'user',
-        content: userInput,
-        timestamp: new Date()
-      });
-
-      // Create enhanced conversation context
-      const messages = this.formatConversationForLLM();
-      
-      console.log('[AiCoachEnhanced] 📝 Generating response for user input:', userInput);
-      console.log('[AiCoachEnhanced] 🔄 Using enhanced constitutional prompt with conversation history');
-
-      // Generate response using WebLLM
-      const completion = await this.engine.chat.completions.create({
-        model: this.currentState.currentModel || 'default',
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 256,
-        top_p: 0.9,
-        frequency_penalty: 0.1,
-        presence_penalty: 0.1
-      });
-
-      const response = completion.choices[0]?.message?.content || '';
-      
-      if (!response) {
-        throw new Error('Empty response from AI model');
-      }
-
-      // Clean and validate response
-      const cleanedResponse = this.cleanAndValidateResponse(response);
-      
-      // Add assistant response to conversation history
-      this.conversationHistory.push({
-        role: 'assistant',
-        content: cleanedResponse,
-        timestamp: new Date()
-      });
-
-      // Maintain conversation history limit (keep last 10 exchanges + system)
-      if (this.conversationHistory.length > 21) {
-        this.conversationHistory = [
-          this.conversationHistory[0], // Keep system prompt
-          ...this.conversationHistory.slice(-20) // Keep last 20 messages
-        ];
-      }
-
-      console.log('[AiCoachEnhanced] ✅ Response generated successfully');
-      console.log('[AiCoachEnhanced] 💬 AI Response:', cleanedResponse);
-      console.log('[AiCoachEnhanced] 📊 Conversation history length:', this.conversationHistory.length - 1, 'exchanges');
-      
-      return cleanedResponse;
-
-    } catch (error) {
-      console.error('[AiCoachEnhanced] Response generation failed:', error);
-      return "I'm sorry, I'm having trouble processing your request right now. Please try again in a moment, and make sure the AI model has finished loading.";
+  async generateResponse(prompt: string): Promise<string> {
+    if (!this.engine) {
+      throw new Error("Chat not initialized. Call initializeChat first.");
     }
+
+    // Apply constitutional AI if enabled
+    const finalPrompt = this.settings.enableConstitutionalAI
+      ? this.applyConstitutionalPrompt(prompt)
+      : prompt;
+
+    const history = this.getConversationHistory();
+    const limitedHistory = history.slice(-this.settings.maxHistoryLength);
+    
+    // Format for the chat API
+    const chatHistory = limitedHistory.map(m => ({
+      role: m.role,
+      content: m.content
+    }));
+
+    const reply = await this.engine.chat.completions.create({
+      messages: [
+        ...chatHistory,
+        { role: 'user', content: finalPrompt }
+      ],
+      // Additional chat options can be set here
+    });
+
+    const responseContent = reply.choices[0].message.content || '';
+
+    this.addMessageToHistory({ role: 'user', content: prompt, timestamp: new Date() });
+    this.addMessageToHistory({ role: 'assistant', content: responseContent, timestamp: new Date() });
+
+    return responseContent;
   }
 
   /**
@@ -556,5 +533,58 @@ Remember: You're not just answering questions—you're building a therapeutic re
     const currentState = this.stateSubject.value;
     const newState = { ...currentState, ...updates };
     this.stateSubject.next(newState);
+  }
+
+  private applyConstitutionalPrompt(prompt: string): string {
+    // This is a simplified example. A real implementation would be more robust.
+    const principles = [
+      "Please be a supportive, empathetic, and friendly AI wellness coach.",
+      "Do not provide medical advice. Instead, suggest users consult a professional.",
+      "Encourage positive self-reflection and mindfulness.",
+      "If the user expresses thoughts of self-harm, immediately provide resources for help and express concern."
+    ];
+
+    // This could be customized based on `this.settings.responseStyle`
+    return `${principles.join(' ')}\n\nUser: ${prompt}\nAI:`;
+  }
+  
+  public getStorageUsage(): string {
+    const history = localStorage.getItem('conversation_messages');
+    if (!history) return '0 MB';
+    const sizeInMB = (history.length / (1024 * 1024)).toFixed(2);
+    return `${sizeInMB} MB`;
+  }
+
+  public getConversationCount(): number {
+    const history = this.getConversationHistory();
+    return history.length;
+  }
+
+  public exportConversationHistory(): void {
+    const history = this.getConversationHistory();
+    const dataStr = JSON.stringify(history, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `resilience-ai-history-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  public clearConversationHistory(): void {
+    localStorage.removeItem('conversation_messages');
+    this.conversationHistory = [];
+  }
+
+  private addMessageToHistory(message: ConversationMessage): void {
+    this.conversationHistory.push(message);
+    this.saveConversationHistory();
+  }
+
+  private saveConversationHistory(): void {
+    localStorage.setItem('conversation_messages', JSON.stringify(this.conversationHistory));
   }
 } 

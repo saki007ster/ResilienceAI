@@ -8,6 +8,7 @@ import { SpeechRecognitionService, SpeechRecognitionState } from '../../services
 import { VrmAvatar } from '../vrm-avatar/vrm-avatar';
 import { AvatarSelector } from '../avatar-selector/avatar-selector';
 import { ModelSelector } from '../model-selector/model-selector';
+import { SettingsService, AllSettings } from '../../services/settings.service';
 
 @Component({
   selector: 'app-chat-window',
@@ -31,6 +32,8 @@ export class ChatWindow implements OnInit, OnDestroy {
     modelCached: false,
     cacheSize: 0
   };
+  
+  settings: AllSettings;
 
   // TTS and Avatar state
   ttsState: TTSState = {
@@ -60,22 +63,27 @@ export class ChatWindow implements OnInit, OnDestroy {
   currentAvatarUrl = '/assets/avatars/default.vrm';
   currentAvatarId = 'default';
 
-  private aiStateSubscription?: Subscription;
-  private ttsStateSubscription?: Subscription;
-  private speechStateSubscription?: Subscription;
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private aiCoachService: AiCoachService,
     public headTts: HeadTts,
-    public speechRecognition: SpeechRecognitionService
-  ) {}
+    public speechRecognition: SpeechRecognitionService,
+    private settingsService: SettingsService
+  ) {
+    this.settings = this.settingsService.getSettings();
+  }
 
   ngOnInit() {
     // Get available models from enhanced service
     this.availableModels = this.aiCoachService.availableModels;
     
+    const settingsSub = this.settingsService.settings$.subscribe(settings => {
+      this.settings = settings;
+    });
+
     // Subscribe to AI coach state changes
-    this.aiStateSubscription = this.aiCoachService.state$.subscribe(
+    const aiStateSub = this.aiCoachService.state$.subscribe(
       state => {
         this.aiState = state;
         this.showModelSelector = !state.isInitialized;
@@ -84,14 +92,14 @@ export class ChatWindow implements OnInit, OnDestroy {
     );
 
     // Subscribe to TTS state changes
-    this.ttsStateSubscription = this.headTts.state$.subscribe(
+    const ttsStateSub = this.headTts.state$.subscribe(
       state => {
         this.ttsState = state;
       }
     );
 
     // Subscribe to Speech Recognition state changes
-    this.speechStateSubscription = this.speechRecognition.state$.subscribe(
+    const speechStateSub = this.speechRecognition.state$.subscribe(
       state => {
         this.speechState = state;
         
@@ -113,6 +121,8 @@ export class ChatWindow implements OnInit, OnDestroy {
       }
     );
 
+    this.subscriptions.push(settingsSub, aiStateSub, ttsStateSub, speechStateSub);
+
     // Update messages initially
     this.updateMessages();
 
@@ -122,9 +132,7 @@ export class ChatWindow implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.aiStateSubscription?.unsubscribe();
-    this.ttsStateSubscription?.unsubscribe();
-    this.speechStateSubscription?.unsubscribe();
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   /**
@@ -159,7 +167,7 @@ export class ChatWindow implements OnInit, OnDestroy {
       this.updateMessages();
 
       // Auto-speak the AI response if enabled
-      if (this.autoSpeakReplies && response && this.headTts.isSupported()) {
+      if (this.settings.audio.autoSpeakResponses && response && this.headTts.isSupported()) {
         try {
           await this.speakText(response);
         } catch (error) {
@@ -192,7 +200,7 @@ export class ChatWindow implements OnInit, OnDestroy {
   }
 
   speakMessage(message: ConversationMessage): void {
-    if (message.content) {
+    if (this.headTts.isSupported()) {
       this.speakText(message.content);
     }
   }
@@ -202,14 +210,12 @@ export class ChatWindow implements OnInit, OnDestroy {
   }
 
   toggleAvatar(): void {
-    this.avatarEnabled = !this.avatarEnabled;
+    // This will be handled by settings now
   }
 
   toggleAutoSpeak(): void {
-    this.autoSpeakReplies = !this.autoSpeakReplies;
-    if (!this.autoSpeakReplies) {
-      this.stopSpeaking();
-    }
+    const newSettings = { ...this.settings.audio, autoSpeakResponses: !this.settings.audio.autoSpeakResponses };
+    this.settingsService.updateSettings({ audio: newSettings });
   }
 
   /**
@@ -241,14 +247,14 @@ export class ChatWindow implements OnInit, OnDestroy {
    * Check if model is ready
    */
   get isModelReady(): boolean {
-    return this.aiState.modelLoaded;
+    return this.aiState.isInitialized && this.aiState.modelLoaded;
   }
 
   /**
    * Get AI device type for display
    */
   get aiDevice(): string {
-    return this.aiState.device.toUpperCase();
+    return this.aiState.device;
   }
 
   /**
@@ -261,6 +267,8 @@ export class ChatWindow implements OnInit, OnDestroy {
       return 'AI model is loading...';
     } else if (this.isGenerating) {
       return 'AI is thinking...';
+    } else if (this.speechState.isListening) {
+      return "Share what's on your mind...";
     } else {
       return 'Type your message here...';
     }
@@ -436,5 +444,9 @@ export class ChatWindow implements OnInit, OnDestroy {
       return 'Listening... Speak now';
     }
     return 'Click to speak';
+  }
+
+  get showTimestamps(): boolean {
+    return this.settings.app.showTimestamps;
   }
 }

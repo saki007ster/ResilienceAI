@@ -27,6 +27,8 @@ export interface TTSOptions {
   providedIn: 'root'
 })
 export class HeadTts {
+  private static readonly STORAGE_KEY = 'tts_settings';
+  
   private synthesis: SpeechSynthesis;
   private currentUtterance: SpeechSynthesisUtterance | null = null;
   private voices: SpeechSynthesisVoice[] = [];
@@ -55,8 +57,11 @@ export class HeadTts {
     'sil': 'sil'
   };
 
+  private options: TTSOptions;
+
   constructor() {
     this.synthesis = window.speechSynthesis;
+    this.options = this.loadOptions();
     this.initializeVoices();
   }
 
@@ -328,5 +333,39 @@ export class HeadTts {
       paused: this.synthesis.paused,
       pending: this.synthesis.pending
     };
+  }
+
+  public getVoices(): SpeechSynthesisVoice[] {
+    return this.synthesis.getVoices();
+  }
+  
+  public setOptions(newOptions: Partial<TTSOptions>): void {
+    this.options = { ...this.options, ...newOptions };
+    this.saveOptions();
+  }
+
+  private loadOptions(): TTSOptions {
+    try {
+      const savedOptions = localStorage.getItem(HeadTts.STORAGE_KEY);
+      if (savedOptions) {
+        return JSON.parse(savedOptions);
+      }
+    } catch (error) {
+      console.error('[HeadTts] Failed to load options:', error);
+    }
+    return {
+      voice: undefined,
+      rate: 1,
+      pitch: 1,
+      volume: 1
+    };
+  }
+
+  private saveOptions(): void {
+    try {
+      localStorage.setItem(HeadTts.STORAGE_KEY, JSON.stringify(this.options));
+    } catch (error) {
+      console.error('[HeadTts] Failed to save options:', error);
+    }
   }
 }
