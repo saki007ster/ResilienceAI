@@ -25,15 +25,27 @@
   }
 }
 
-.nav-brand h1 {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  color: var(--color-primary);
+.nav-brand {
+  .brand-link {
+    text-decoration: none;
+    color: inherit;
+    transition: opacity var(--transition);
+    
+    &:hover {
+      opacity: 0.8;
+    }
+  }
   
-  @media (max-width: 768px) {
-    font-size: 1.3rem;
+  h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--color-primary);
+    
+    @media (max-width: 768px) {
+      font-size: 1.3rem;
+    }
   }
 }
 
@@ -48,15 +60,24 @@
 
 .nav-links a {
   color: var(--color-text);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
   font-weight: 500;
-  padding: 0.5rem 1.2rem;
-  border-radius: 999px;
-  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+  transition: all var(--transition);
   position: relative;
-  outline: none;
-  font-size: 1.05rem;
-  display: flex;
-  align-items: center;
+  border: 1px solid transparent;
+  
+  &:hover {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+  }
+  
+  &.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
   
   @media (max-width: 768px) {
     padding: 0.4rem 0.8rem;
@@ -64,32 +85,63 @@
   }
 }
 
-.nav-links a.active,
-.nav-links a:focus {
-  background: var(--color-active);
-  color: var(--color-primary);
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
-}
-
-.nav-links a:hover {
-  background: var(--color-focus);
-  color: var(--color-accent);
-}
-
 .main-content {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: calc(100vh - var(--header-height));
-  background: none;
-  padding: 0;
+  flex: 1;
+  width: 100%;
+  opacity: 1; // Always visible, no fade animation
 }
 
 .main-inner {
-  width: 100%;
-  max-width: var(--max-width);
-  margin: 2.5rem auto 0 auto;
-  padding: 0 1.2rem 2.5rem 1.2rem;
+  // Default layout - will be overridden by homepage component
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Homepage gets full width via its own component styles
+// Other pages get constrained grid layout
+.main-inner.app-pages {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  
+  @media (min-width: 1025px) {
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    
+    @media (min-width: 1400px) {
+      grid-template-columns: 350px 1fr;
+      gap: 3rem;
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  @media (max-width: 568px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 700px) {

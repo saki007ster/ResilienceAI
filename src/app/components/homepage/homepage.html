@@ -1,0 +1,232 @@
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-background">
+    <div class="floating-orbs">
+      <div class="orb orb-1 floating"></div>
+      <div class="orb orb-2 floating"></div>
+      <div class="orb orb-3 floating"></div>
+    </div>
+  </div>
+  
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1 class="hero-title">
+        Your Personal AI Wellness Coach
+        <span class="gradient-text">With VRM Avatars</span>
+      </h1>
+      <p class="hero-subtitle">
+        Experience the future of mental wellness with real local LLM processing, 
+        immersive 3D VRM avatars, and complete privacy protection. 
+        No data ever leaves your device.
+      </p>
+      
+      <div class="hero-stats">
+        <div *ngFor="let stat of stats" class="stat-item floating">
+          <div class="stat-number">{{ stat.number }}</div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </div>
+      </div>
+      
+      <div class="hero-actions">
+        <a routerLink="/chat" class="btn btn-primary pulse-animation">
+          <span>Start Chatting Now</span>
+          <i class="icon">🚀</i>
+        </a>
+        <button (click)="scrollToSection('features')" class="btn btn-secondary">
+          <span>Learn More</span>
+          <i class="icon">📚</i>
+        </button>
+      </div>
+      
+      <div class="hero-badges">
+        <div class="badge floating">🔒 Privacy First</div>
+        <div class="badge floating">⚡ WebGPU Accelerated</div>
+        <div class="badge floating">🌐 Offline PWA</div>
+      </div>
+    </div>
+    
+    <div class="hero-visual">
+      <div class="avatar-showcase floating">
+        <div class="avatar-frame">
+          <div class="avatar-placeholder">
+            <div class="avatar-face">
+              <div class="avatar-eyes">
+                <div class="eye"></div>
+                <div class="eye"></div>
+              </div>
+              <div class="avatar-mouth speaking"></div>
+            </div>
+          </div>
+          <div class="speech-bubble">
+            <p>"Hi! I'm your AI wellness coach. Let's start your journey to better mental health together!"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section">
+  <div class="section-header">
+    <h2 class="section-title">Why Choose Resilience AI?</h2>
+    <p class="section-subtitle">
+      Cutting-edge technology meets compassionate wellness coaching
+    </p>
+  </div>
+  
+  <div class="features-grid">
+    <div *ngFor="let feature of features; let i = index" 
+         class="feature-card floating"
+         [style.animation-delay]="(i * 0.1) + 's'">
+      <div class="feature-icon">{{ feature.icon }}</div>
+      <h3 class="feature-title">{{ feature.title }}</h3>
+      <p class="feature-description">{{ feature.description }}</p>
+      <div class="feature-highlight">{{ feature.highlight }}</div>
+    </div>
+  </div>
+</section>
+
+<!-- Technology Section -->
+<section class="tech-section">
+  <div class="section-header">
+    <h2 class="section-title">Powered by Advanced Technology</h2>
+    <p class="section-subtitle">
+      Built with the latest in AI, 3D graphics, and web technologies
+    </p>
+  </div>
+  
+  <div class="tech-stack">
+    <div class="tech-category">
+      <h3>AI & Machine Learning</h3>
+      <div class="tech-items">
+        <div class="tech-item">&#64;mlc-ai/web-llm</div>
+        <div class="tech-item">Llama 3.2</div>
+        <div class="tech-item">Qwen 2.5</div>
+        <div class="tech-item">Gemma 2</div>
+        <div class="tech-item">WebGPU</div>
+      </div>
+    </div>
+    
+    <div class="tech-category">
+      <h3>3D Graphics & Animation</h3>
+      <div class="tech-items">
+        <div class="tech-item">Three.js</div>
+        <div class="tech-item">&#64;pixiv/three-vrm</div>
+        <div class="tech-item">VRM 1.0</div>
+        <div class="tech-item">WebGL</div>
+        <div class="tech-item">Canvas API</div>
+      </div>
+    </div>
+    
+    <div class="tech-category">
+      <h3>Frontend & PWA</h3>
+      <div class="tech-items">
+        <div class="tech-item">Angular 17+</div>
+        <div class="tech-item">TypeScript</div>
+        <div class="tech-item">Service Workers</div>
+        <div class="tech-item">Web Speech API</div>
+        <div class="tech-item">Cache API</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Demo Section -->
+<section class="demo-section">
+  <div class="section-header">
+    <h2 class="section-title">See It In Action</h2>
+    <p class="section-subtitle">
+      Experience the power of local AI and VRM avatars
+    </p>
+  </div>
+  
+  <div class="demo-content">
+    <div class="demo-features">
+      <div class="demo-feature">
+        <div class="demo-icon">🧠</div>
+        <h3>Real AI Responses</h3>
+        <p>Get genuine, contextual responses from local LLM models specialized in wellness coaching</p>
+      </div>
+      
+      <div class="demo-feature">
+        <div class="demo-icon">🎭</div>
+        <h3>Immersive Avatars</h3>
+        <p>Watch your AI coach come to life with 3D VRM avatars, lip-sync, and natural expressions</p>
+      </div>
+      
+      <div class="demo-feature">
+        <div class="demo-icon">🔐</div>
+        <h3>Complete Privacy</h3>
+        <p>Everything runs locally in your browser - no data transmission, no tracking, no worries</p>
+      </div>
+    </div>
+    
+    <div class="demo-cta">
+      <h3>Ready to Experience the Future?</h3>
+      <p>Start your wellness journey with our advanced AI coach</p>
+      <a routerLink="/chat" class="btn btn-primary btn-large pulse-animation">
+        <span>Launch AI Coach</span>
+        <i class="icon">🎯</i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Browser Support Section -->
+<section class="support-section">
+  <div class="section-header">
+    <h2 class="section-title">Browser Compatibility</h2>
+    <p class="section-subtitle">
+      Optimized for modern browsers with progressive enhancement
+    </p>
+  </div>
+  
+  <div class="browser-grid">
+    <div class="browser-item recommended">
+      <div class="browser-icon">🌟</div>
+      <h3>Chrome 90+</h3>
+      <p>Full WebGPU, VRM support</p>
+      <div class="support-level excellent">Excellent</div>
+    </div>
+    
+    <div class="browser-item recommended">
+      <div class="browser-icon">🌟</div>
+      <h3>Edge 90+</h3>
+      <p>Full WebGPU, VRM support</p>
+      <div class="support-level excellent">Excellent</div>
+    </div>
+    
+    <div class="browser-item good">
+      <div class="browser-icon">✅</div>
+      <h3>Firefox 80+</h3>
+      <p>WASM LLM, basic VRM</p>
+      <div class="support-level good">Good</div>
+    </div>
+    
+    <div class="browser-item limited">
+      <div class="browser-icon">⚠️</div>
+      <h3>Safari 14+</h3>
+      <p>Limited VRM support</p>
+      <div class="support-level limited">Limited</div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer CTA -->
+<section class="footer-cta">
+  <div class="cta-content">
+    <h2>Transform Your Mental Wellness Today</h2>
+    <p>Join thousands of users experiencing the future of AI-powered wellness coaching</p>
+    <div class="cta-buttons">
+      <a routerLink="/chat" class="btn btn-primary btn-large">
+        <span>Get Started Free</span>
+        <i class="icon">🚀</i>
+      </a>
+      <a routerLink="/settings" class="btn btn-secondary">
+        <span>View Settings</span>
+        <i class="icon">⚙️</i>
+      </a>
+    </div>
+  </div>
+</section> 
