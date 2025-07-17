@@ -10,22 +10,22 @@
       
       <div class="status-indicators">
         <div class="status-item" [class.active]="isModelReady">
-          <span class="status-dot"></span>
+          <span class="status-dot" aria-hidden="true"></span>
           <span role="status" aria-live="polite">{{ isModelReady ? 'Model Ready' : 'Model Not Ready' }}</span>
         </div>
         
         <div class="status-item" [class.active]="isChatReady && isModelReady">
-          <span class="status-dot"></span>
+          <span class="status-dot" aria-hidden="true"></span>
           <span role="status" aria-live="polite">{{ isChatReady && isModelReady ? aiDevice : 'AI Initializing' }}</span>
         </div>
 
         <div class="status-item" [class.active]="headTts.isSupported()">
-          <span class="status-dot"></span>
+          <span class="status-dot" aria-hidden="true"></span>
           <span role="status" aria-live="polite">{{ headTts.isSupported() ? 'TTS Ready' : 'TTS Not Available' }}</span>
         </div>
 
         <div class="status-item" [class.active]="speechRecognition.isSupported()">
-          <span class="status-dot"></span>
+          <span class="status-dot" aria-hidden="true"></span>
           <span role="status" aria-live="polite">{{ speechRecognition.isSupported() ? 'Voice Input Ready' : 'Voice Input Not Available' }}</span>
         </div>
       </div>
@@ -33,7 +33,7 @@
   </header>
 
   <!-- Model Selector Section (shown when no model is loaded) -->
-  <div *ngIf="showModelSelector" class="model-selector-section">
+  <main class="model-selector-section" *ngIf="showModelSelector">
     <div class="container">
       <app-model-selector
         [availableModels]="availableModels"
@@ -49,211 +49,209 @@
         (clearCacheTriggered)="onClearCache()">
       </app-model-selector>
     </div>
-  </div>
+  </main>
 
   <!-- Main Chat Interface (shown when model is ready) -->
-  <div *ngIf="!showModelSelector" class="chat-interface">
+  <main class="chat-interface" *ngIf="!showModelSelector">
     <div class="container">
-      <div class="card fade-in chat-main-content">
-      <!-- Avatar and Chat Side-by-Side Layout -->
-      <div class="avatar-section" *ngIf="avatarEnabled">
-        <!-- Avatar Selector -->
-        <app-avatar-selector
-          [currentAvatarId]="currentAvatarId"
-          (avatarSelected)="onAvatarSelected($event)"
-          (customAvatarUploaded)="onCustomAvatarUploaded($event)">
-        </app-avatar-selector>
-
-        <!-- VRM Avatar Display -->
-        <app-vrm-avatar 
-          [size]="getAvatarSize()"
-          [isVisible]="avatarEnabled"
-          [avatarUrl]="currentAvatarUrl">
-        </app-vrm-avatar>
+      <div class="chat-main-content">
         
-        <!-- TTS Controls -->
-        <div class="tts-controls">
-          <button 
-            class="control-btn" 
-            [class.active]="autoSpeakReplies"
-            (click)="toggleAutoSpeak()"
-            title="Toggle Auto-speak Replies">
-            🔊 Auto-speak
-          </button>
-          
-          <button 
-            class="control-btn" 
-            *ngIf="ttsState.isSpeaking"
-            (click)="stopSpeaking()"
-            title="Stop Speaking">
-            ⏹️ Stop
-          </button>
-          
-          <button 
-            class="control-btn" 
-            (click)="toggleAvatar()"
-            title="Toggle Avatar">
-            👤 Avatar
-          </button>
-        </div>
-      </div>
+        <!-- Avatar Section -->
+        <aside class="avatar-section" *ngIf="avatarEnabled" role="complementary" aria-label="Avatar controls">
+          <!-- Avatar Selector -->
+          <app-avatar-selector
+            [currentAvatarId]="currentAvatarId"
+            (avatarSelected)="onAvatarSelected($event)"
+            (customAvatarUploaded)="onCustomAvatarUploaded($event)">
+          </app-avatar-selector>
 
-      <!-- Chat Messages Section -->
-      <div class="messages-section">
-        <!-- Chat Messages -->
-        <div class="chat-messages" #messagesContainer>
+          <!-- VRM Avatar Display -->
+          <app-vrm-avatar 
+            [size]="getAvatarSize()"
+            [isVisible]="avatarEnabled"
+            [avatarUrl]="currentAvatarUrl">
+          </app-vrm-avatar>
           
-          <!-- Welcome Message (when no conversation history) -->
-          <div *ngIf="messages.length === 0" class="welcome-message">
-            <div class="welcome-content">
-              <div class="welcome-icon">🌟</div>
-              <h3>{{ getGreeting() }} Welcome to Resilience AI</h3>
-              <p>I'm here to support your mental wellness journey. Our conversations are completely private and happen offline on your device.</p>
-              
-              <div class="conversation-starters">
-                <h4>You can ask me about:</h4>
-                <div class="starter-tags">
-                  <span class="starter-tag" (click)="userInput='I feel stressed about work'; sendMessage()">Stress management</span>
-                  <span class="starter-tag" (click)="userInput='I have trouble sleeping'; sendMessage()">Sleep improvement</span>
-                  <span class="starter-tag" (click)="userInput='How can I practice mindfulness?'; sendMessage()">Mindfulness techniques</span>
-                  <span class="starter-tag" (click)="userInput='How can I build resilience?'; sendMessage()">Building resilience</span>
-                  <span class="starter-tag" (click)="userInput='Help me set goals'; sendMessage()">Goal setting</span>
-                  <span class="starter-tag" (click)="userInput='I need emotional support'; sendMessage()">Emotional support</span>
+          <!-- TTS Controls -->
+          <div class="tts-controls">
+            <button 
+              class="control-btn" 
+              [class.active]="autoSpeakReplies"
+              (click)="toggleAutoSpeak()"
+              title="Toggle Auto-speak Replies"
+              aria-label="Toggle automatic speech for AI responses">
+              🔊 Auto-speak
+            </button>
+            
+            <button 
+              class="control-btn" 
+              *ngIf="ttsState.isSpeaking"
+              (click)="stopSpeaking()"
+              title="Stop Speaking"
+              aria-label="Stop current speech">
+              ⏹️ Stop
+            </button>
+            
+            <button 
+              class="control-btn" 
+              (click)="toggleAvatar()"
+              title="Toggle Avatar"
+              aria-label="Toggle avatar visibility">
+              👤 Avatar
+            </button>
+          </div>
+        </aside>
+
+        <!-- Chat Messages Section -->
+        <section class="messages-section" role="main" aria-label="Chat conversation">
+          <!-- Chat Messages -->
+          <div class="chat-messages" #messagesContainer role="log" aria-live="polite" aria-label="Chat messages">
+            
+            <!-- Welcome Message (when no conversation history) -->
+            <div *ngIf="messages.length === 0" class="welcome-message">
+              <div class="welcome-content">
+                <div class="welcome-icon" aria-hidden="true">🌟</div>
+                <h3>{{ getGreeting() }} Welcome to Resilience AI</h3>
+                <p>I'm here to support your mental wellness journey. Our conversations are completely private and happen offline on your device.</p>
+                
+                <div class="conversation-starters">
+                  <h4>You can ask me about:</h4>
+                  <div class="starter-tags">
+                    <button class="starter-tag" (click)="userInput='I feel stressed about work'; sendMessage()">Stress management</button>
+                    <button class="starter-tag" (click)="userInput='I have trouble sleeping'; sendMessage()">Sleep improvement</button>
+                    <button class="starter-tag" (click)="userInput='How can I practice mindfulness?'; sendMessage()">Mindfulness techniques</button>
+                    <button class="starter-tag" (click)="userInput='How can I build resilience?'; sendMessage()">Building resilience</button>
+                    <button class="starter-tag" (click)="userInput='Help me set goals'; sendMessage()">Goal setting</button>
+                    <button class="starter-tag" (click)="userInput='I need emotional support'; sendMessage()">Emotional support</button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Conversation Messages -->
-          <div *ngFor="let message of messages; trackBy: messageTrackBy" 
-               class="message-wrapper" 
-               [class.user-message]="message.role === 'user'"
-               [class.ai-message]="message.role === 'assistant'">
-            
-            <div class="message-bubble">
-              <!-- Message Header -->
-              <div class="message-header">
-                <span class="message-sender">
-                  {{ message.role === 'user' ? 'You' : 'RAI Coach' }}
-                </span>
-                <span class="message-time">
-                  {{ message.timestamp | date:'short' }}
-                </span>
-                <!-- Speak Button for AI messages -->
-                <button 
-                  *ngIf="message.role === 'assistant' && headTts.isSupported()" 
-                  class="speak-btn"
-                  (click)="speakMessage(message)"
-                  [disabled]="ttsState.isSpeaking"
-                  title="Speak this message">
-                  🔊
-                </button>
-              </div>
+            <!-- Conversation Messages -->
+            <div *ngFor="let message of messages; trackBy: messageTrackBy" 
+                 class="message-wrapper" 
+                 [class.user-message]="message.role === 'user'"
+                 [class.ai-message]="message.role === 'assistant'">
               
-              <!-- Message Content -->
-              <div class="message-content">
-                {{ message.content }}
+              <div class="message-bubble" [attr.aria-label]="message.role === 'user' ? 'Your message' : 'AI Coach message'">
+                <!-- Message Header -->
+                <div class="message-header">
+                  <span class="message-sender">
+                    {{ message.role === 'user' ? 'You' : 'RAI Coach' }}
+                  </span>
+                  <span class="message-time">
+                    {{ message.timestamp | date:'short' }}
+                  </span>
+                  <!-- Speak Button for AI messages -->
+                  <button 
+                    *ngIf="message.role === 'assistant' && headTts.isSupported()" 
+                    class="speak-btn"
+                    (click)="speakMessage(message)"
+                    [disabled]="ttsState.isSpeaking"
+                    title="Speak this message"
+                    aria-label="Read this message aloud">
+                    🔊
+                  </button>
+                </div>
+                
+                <!-- Message Content -->
+                <div class="message-content">
+                  {{ message.content }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div *ngIf="isGenerating" class="typing-indicator" aria-live="polite" aria-label="AI is typing">
+              <div class="typing-bubble">
+                <div class="typing-dots" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span class="typing-text">RAI Coach is thinking...</span>
               </div>
             </div>
           </div>
+        </section>
+      </div>
 
-          <!-- Typing Indicator -->
-          <div *ngIf="isGenerating" class="typing-indicator">
-            <div class="typing-bubble">
-              <div class="typing-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-              <span class="typing-text">RAI Coach is thinking...</span>
-            </div>
+      <!-- Input Section -->
+      <section class="chat-input-section" role="region" aria-label="Message input">
+        <div class="input-container">
+          <label for="messageInput" class="sr-only">Type your message</label>
+          <textarea 
+            id="messageInput"
+            [(ngModel)]="userInput"
+            (keydown)="onKeyPress($event)"
+            [placeholder]="speechState.isListening ? 'Listening... Speak now' : 'Share what\'s on your mind... (Press Enter to send, Shift+Enter for new line)'"
+            class="message-input"
+            [class.listening]="speechState.isListening"
+            rows="2"
+            [disabled]="isGenerating"
+            aria-describedby="inputHelp"
+            #messageInput>
+          </textarea>
+          
+          <!-- Microphone Button -->
+          <button 
+            (click)="toggleMicrophone()" 
+            [disabled]="isGenerating"
+            class="mic-button"
+            [class.active]="speechState.isListening"
+            [class.supported]="speechRecognition.isSupported()"
+            [title]="microphoneStatus"
+            [attr.aria-label]="speechState.isListening ? 'Stop listening' : 'Start voice input'">
+            <span *ngIf="!speechState.isListening" aria-hidden="true">🎤</span>
+            <span *ngIf="speechState.isListening" class="listening-pulse" aria-hidden="true">🔴</span>
+          </button>
+          
+          <button 
+            (click)="sendMessage()" 
+            [disabled]="!userInput.trim() || isGenerating || !isChatReady"
+            class="send-button"
+            title="Send Message"
+            aria-label="Send your message">
+            <span *ngIf="!isGenerating" aria-hidden="true">➤</span>
+            <span *ngIf="isGenerating" class="loading-spinner" aria-hidden="true">⟳</span>
+          </button>
+        </div>
+        
+        <!-- Speech Recognition Status -->
+        <div class="speech-status" *ngIf="speechState.isListening || speechState.error" role="status" aria-live="polite">
+          <div class="speech-indicator" *ngIf="speechState.isListening && !speechState.error">
+            <span class="listening-dots" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            <span class="listening-text">Listening... Speak clearly into your microphone</span>
+          </div>
+          
+          <div class="speech-error" *ngIf="speechState.error">
+            <span class="error-icon" aria-hidden="true">⚠️</span>
+            <span class="error-text">{{ speechState.error }}</span>
+            <button class="retry-btn" (click)="toggleMicrophone()">Try Again</button>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Input Section -->
-    <div class="chat-input-section">
-      <div class="input-container">
-        <textarea 
-          [(ngModel)]="userInput"
-          (keydown)="onKeyPress($event)"
-          [placeholder]="speechState.isListening ? 'Listening... Speak now' : 'Share what\'s on your mind... (Press Enter to send, Shift+Enter for new line)'"
-          class="message-input"
-          [class.listening]="speechState.isListening"
-          rows="2"
-          [disabled]="isGenerating"
-          #messageInput>
-        </textarea>
         
-        <!-- Microphone Button -->
-        <button 
-          (click)="toggleMicrophone()" 
-          [disabled]="isGenerating"
-          class="mic-button"
-          [class.active]="speechState.isListening"
-          [class.supported]="speechRecognition.isSupported()"
-          [title]="microphoneStatus">
-          <span *ngIf="!speechState.isListening">🎤</span>
-          <span *ngIf="speechState.isListening" class="listening-pulse">🔴</span>
-        </button>
-        
-        <button 
-          (click)="sendMessage()" 
-          [disabled]="!userInput.trim() || isGenerating || !isChatReady"
-          class="send-button"
-          title="Send Message">
-          <span *ngIf="!isGenerating">➤</span>
-          <span *ngIf="isGenerating" class="loading-spinner">⟳</span>
-        </button>
-      </div>
-      
-      <!-- Speech Recognition Status -->
-      <div class="speech-status" *ngIf="speechState.isListening || speechState.error">
-        <div class="speech-indicator" *ngIf="speechState.isListening && !speechState.error">
-          <span class="listening-dots">
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
-          <span class="listening-text">Listening... Speak clearly into your microphone</span>
+        <!-- Interim Speech Display -->
+        <div class="interim-speech" *ngIf="speechState.interimTranscript" role="status" aria-live="polite">
+          <span class="interim-label">You're saying:</span>
+          <span class="interim-text">"{{ speechState.interimTranscript }}"</span>
         </div>
         
-        <div class="speech-error" *ngIf="speechState.error">
-          <span class="error-icon">⚠️</span>
-          <span class="error-text">{{ speechState.error }}</span>
-          <button class="retry-btn" (click)="toggleMicrophone()">Try Again</button>
+        <!-- Input Status -->
+        <div class="input-status" *ngIf="!isChatReady" role="status" aria-live="polite">
+          <span class="status-text">⏳ Waiting for AI model to initialize...</span>
         </div>
-      </div>
-      
-      <!-- Interim Speech Display -->
-      <div class="interim-speech" *ngIf="speechState.interimTranscript">
-        <span class="interim-label">You're saying:</span>
-        <span class="interim-text">"{{ speechState.interimTranscript }}"</span>
-      </div>
-      
-      <!-- Input Status -->
-      <div class="input-status" *ngIf="!isChatReady">
-        <span class="status-text">⏳ Waiting for AI model to initialize...</span>
-      </div>
+        
+        <!-- Hidden help text for screen readers -->
+        <div id="inputHelp" class="sr-only">
+          Press Enter to send your message, or Shift+Enter for a new line. You can also use the microphone button to speak your message.
+        </div>
+      </section>
     </div>
-      
-      <!-- Debug Info (only in development) -->
-      <div class="debug-info" *ngIf="false">
-        <details>
-          <summary>🔧 Debug Information</summary>
-          <div class="debug-content">
-            <h4>AI State:</h4>
-            <pre>{{ aiState | json }}</pre>
-            
-            <h4>TTS State:</h4>
-            <pre>{{ ttsState | json }}</pre>
-            
-            <h4>TTS Info:</h4>
-            <pre>{{ getTTSInfo() | json }}</pre>
-          </div>
-        </details>
-      </div>
-    </div>
-  </div>
+  </main>
 </div>
