@@ -8,6 +8,7 @@ export interface AppSettings {
 
 export interface AiSettings {
   device: 'webgpu' | 'wasm' | 'auto';
+  selectedModel: string | null;
   responseStyle: 'supportive' | 'direct' | 'detailed';
   maxHistoryLength: number;
   enableConstitutionalAI: boolean;
@@ -40,6 +41,7 @@ export class SettingsService {
     },
     ai: {
       device: 'auto',
+      selectedModel: null,
       responseStyle: 'supportive',
       maxHistoryLength: 50,
       enableConstitutionalAI: true

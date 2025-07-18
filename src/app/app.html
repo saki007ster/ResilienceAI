@@ -5,12 +5,17 @@
         <h1>Resilience AI</h1>
       </a>
     </div>
-    <nav class="nav-links" role="navigation" aria-label="Main navigation">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-      <a routerLink="/chat" routerLinkActive="active">Chat</a>
-      <a routerLink="/schedule" routerLinkActive="active">Schedule</a>
-      <a routerLink="/settings" routerLinkActive="active">Settings</a>
+    <nav class="nav-links" [class.active]="isMenuOpen" role="navigation" aria-label="Main navigation">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">Home</a>
+      <a routerLink="/chat" routerLinkActive="active" (click)="closeMenu()">Chat</a>
+      <a routerLink="/schedule" routerLinkActive="active" (click)="closeMenu()">Schedule</a>
+      <a routerLink="/settings" routerLinkActive="active" (click)="closeMenu()">Settings</a>
     </nav>
+    <button class="hamburger" (click)="toggleMenu()" [class.active]="isMenuOpen" aria-label="Toggle navigation menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </header>
   
   <main class="main-content" tabindex="-1">

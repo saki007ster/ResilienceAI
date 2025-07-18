@@ -1,7 +1,9 @@
-import { Component, Output, EventEmitter, Input } from '@angular/core';
+import { Component, Output, EventEmitter, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ModelOption } from '../../services/ai-coach-enhanced.service';
+import { ModelOption, AiCoachEnhancedService } from '../../services/ai-coach-enhanced.service';
+import { SettingsService } from '../../services/settings.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-model-selector',
@@ -11,7 +13,6 @@ import { ModelOption } from '../../services/ai-coach-enhanced.service';
   styleUrl: './model-selector.scss'
 })
 export class ModelSelector {
-  @Input() availableModels: ModelOption[] = [];
   @Input() currentModel: string | null = null;
   @Input() isLoading: boolean = false;
   @Input() isInitialized: boolean = false;
@@ -24,9 +25,15 @@ export class ModelSelector {
   @Output() initializeTriggered = new EventEmitter<void>();
   @Output() clearCacheTriggered = new EventEmitter<void>();
 
+  private settingsService = inject(SettingsService);
+  private router = inject(Router);
+  private aiCoachService = inject(AiCoachEnhancedService);
+
+  availableModels: ModelOption[] = [];
   selectedModelId: string = '';
 
   ngOnInit() {
+    this.availableModels = this.aiCoachService.availableModels;
     // Set default selection to the first recommended model
     if (this.availableModels.length > 0 && !this.selectedModelId) {
       this.selectedModelId = this.availableModels.find(m => m.recommended)?.id || this.availableModels[0].id;
@@ -50,7 +57,12 @@ export class ModelSelector {
   onInitializeClick() {
     if (this.selectedModelId) {
       this.modelSelected.emit(this.selectedModelId);
+      const currentAiSettings = this.settingsService.getSettings().ai;
+      this.settingsService.updateSettings({
+        ai: { ...currentAiSettings, selectedModel: this.selectedModelId }
+      });
       this.initializeTriggered.emit();
+      this.router.navigate(['/chat']);
     }
   }
 

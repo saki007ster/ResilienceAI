@@ -9,14 +9,6 @@
   background: #1a202c; // Fallback dark background
 }
 
-// Define missing CSS variables for homepage
-:host {
-  --text-primary: #ffffff;
-  --text-secondary: #cbd5e0;
-  --primary-color: var(--color-primary);
-  --color-bg-secondary: var(--color-active);
-}
-
 // Hero Section
 .hero-section {
   position: relative;
@@ -612,7 +604,7 @@
         color: white;
       }
       p {
-        color: var(--text-secondary);
+        color: #cbd5e0;
         line-height: 1.6;
       }
     }
@@ -634,11 +626,15 @@
     margin: 0 auto;
     .faq-item {
       background: rgba(255, 255, 255, 0.05);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 1.5rem 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+
       &:last-child {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 0;
       }
+
       .faq-question {
         font-size: 1.25rem;
         font-weight: 600;
@@ -646,7 +642,7 @@
         color: white;
       }
       .faq-answer {
-        color: var(--text-secondary);
+        color: #cbd5e0;
         line-height: 1.7;
         margin: 0;
       }

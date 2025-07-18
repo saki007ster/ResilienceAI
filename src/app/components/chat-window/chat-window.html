@@ -36,7 +36,6 @@
   <main class="model-selector-section" *ngIf="showModelSelector">
     <div class="container">
       <app-model-selector
-        [availableModels]="availableModels"
         [currentModel]="aiState.currentModel || null"
         [isLoading]="aiState.isLoading"
         [isInitialized]="aiState.isInitialized"
