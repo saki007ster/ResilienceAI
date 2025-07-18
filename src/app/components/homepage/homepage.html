@@ -29,11 +29,11 @@
       
       <div class="hero-actions">
         <a routerLink="/chat" class="btn btn-primary pulse-animation">
-          <span>Start Chatting Now</span>
+          <span>Get a Demo</span>
           <i class="icon">🚀</i>
         </a>
         <button (click)="scrollToSection('features')" class="btn btn-secondary">
-          <span>Learn More</span>
+          <span>Join Waitlist</span>
           <i class="icon">📚</i>
         </button>
       </div>
@@ -46,24 +46,121 @@
     </div>
     
     <div class="hero-visual">
-      <div class="avatar-showcase floating">
-        <div class="avatar-frame">
-          <div class="avatar-placeholder">
-            <div class="avatar-face">
-              <div class="avatar-eyes">
-                <div class="eye"></div>
-                <div class="eye"></div>
-              </div>
-              <div class="avatar-mouth speaking"></div>
-            </div>
-          </div>
-          <div class="speech-bubble">
-            <p>"Hi! I'm your AI wellness coach. Let's start your journey to better mental health together!"</p>
-          </div>
-        </div>
-      </div>
+      <video class="hero-video" muted loop playsinline>
+        <source src="/ResilienceAI.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <button class="play-button" (click)="openVideoModal()" aria-label="Play video">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      </button>
     </div>
   </div>
+</section>
+
+<!-- Video Modal -->
+<div class="video-modal-overlay" *ngIf="isVideoModalOpen" (click)="closeVideoModal()">
+  <div class="video-modal-content" (click)="$event.stopPropagation()">
+    <button class="video-modal-close" (click)="closeVideoModal()" aria-label="Close video player">&times;</button>
+    <video #modalVideo controls autoplay class="modal-video-player">
+      <source src="/ResilienceAI.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</div>
+
+<!-- Problem Section -->
+<section id="problem" class="problem-section">
+  <div class="section-header">
+    <h2 class="section-title">The Wellness Gap</h2>
+    <p class="section-subtitle">
+      Mental wellness support is often inaccessible, expensive, or lacks privacy.
+    </p>
+  </div>
+  <div class="problem-points">
+    <div class="point">
+      <h3>🚫 Accessibility</h3>
+      <p>Traditional therapy can be difficult to schedule and access.</p>
+    </div>
+    <div class="point">
+      <h3>💰 High Cost</h3>
+      <p>Consistent mental wellness support can be a significant financial burden.</p>
+    </div>
+    <div class="point">
+      <h3>🔒 Privacy Concerns</h3>
+      <p>Sharing sensitive data with third-party services is a major concern for many.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Solution Section -->
+<section id="solution" class="solution-section">
+  <div class="section-header">
+    <h2 class="section-title">Your Private Wellness Companion</h2>
+    <p class="section-subtitle">
+      Resilience AI provides a secure, affordable, and personalized wellness coach.
+    </p>
+  </div>
+  
+  <div class="features-grid">
+    <div *ngFor="let feature of features; let i = index" 
+         class="feature-card floating"
+         [style.animation-delay]="(i * 0.1) + 's'">
+      <div class="feature-icon">{{ feature.icon }}</div>
+      <h3 class="feature-title">{{ feature.title }}</h3>
+      <p class="feature-description">{{ feature.description }}</p>
+      <div class="feature-highlight">{{ feature.highlight }}</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section id="faq" class="faq-section">
+    <div class="section-header">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">
+            Have questions? We have answers.
+        </p>
+    </div>
+    <div class="faq-list">
+        <div class="faq-item">
+            <h3 class="faq-question">Is my data private?</h3>
+            <p class="faq-answer">Yes, 100%. All processing happens on your device. No data is ever sent to the cloud, ensuring complete privacy.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">What technology does it use?</h3>
+            <p class="faq-answer">Resilience AI runs on cutting-edge local LLMs like Llama 3.2 and Gemma 2, with immersive 3D VRM avatars powered by WebGPU.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">What do I need to run it?</h3>
+            <p class="faq-answer">A modern browser like Chrome or Edge that supports WebGPU. You can check the browser compatibility section for more details.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Can I customize my AI coach?</h3>
+            <p class="faq-answer">Absolutely! You can choose from various avatars and even upload your own VRM model for a truly personalized experience.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section id="cta" class="cta-section">
+    <div class="section-header">
+        <h2 class="section-title">Ready to Start Your Journey?</h2>
+        <p class="section-subtitle">
+            Join our waitlist to get early access or try the live demo now.
+        </p>
+    </div>
+    <div class="cta-buttons">
+        <a href="mailto:waitlist@resilienceai.app" class="btn btn-primary btn-large">
+            <span>Join the Waitlist</span>
+            <i class="icon">✉️</i>
+        </a>
+        <a routerLink="/chat" class="btn btn-secondary btn-large">
+            <span>Launch Demo</span>
+            <i class="icon">🚀</i>
+        </a>
+    </div>
 </section>
 
 <!-- Features Section -->

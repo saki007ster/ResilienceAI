@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -10,6 +10,10 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./homepage.scss']
 })
 export class Homepage implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('modalVideo') modalVideo: ElementRef<HTMLVideoElement> | undefined;
+
+  isVideoModalOpen = false;
+
   features = [
     {
       icon: '🤖',
@@ -122,5 +126,17 @@ export class Homepage implements OnInit, AfterViewInit, OnDestroy {
     } catch (error) {
       console.warn('Scroll error:', error);
     }
+  }
+
+  openVideoModal() {
+    this.isVideoModalOpen = true;
+    setTimeout(() => {
+      this.modalVideo?.nativeElement.play();
+    }, 0);
+  }
+
+  closeVideoModal() {
+    this.isVideoModalOpen = false;
+    this.modalVideo?.nativeElement.pause();
   }
 } 
